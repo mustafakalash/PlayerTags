@@ -187,11 +187,13 @@ namespace PlayerTags.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Shows the config window for Player Tags ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Shows the config window for Player Tags
+        ///Subcommands:
+        ///enableglobal on|of|toggle -&gt; Set a global master switch that enables or disables all plugin features without changing the current configuration. ähnelt.
         /// </summary>
-        public static string Loc_Command_playertags {
+        public static string Loc_Command_playertags_v2 {
             get {
-                return ResourceManager.GetString("Loc_Command_playertags", resourceCulture);
+                return ResourceManager.GetString("Loc_Command_playertags_v2", resourceCulture);
             }
         }
         

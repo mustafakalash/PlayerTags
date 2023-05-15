@@ -829,4 +829,9 @@ Benutze dies, wenn du jede Option unter deiner Kontrolle haben möchtest oder nu
     <value>Wenn aktiviert, gilt das Tag für alle Chat-Nachrichten, die keinen definierten Typ haben.
 Dieser Fall kann entweder auftreten, wenn das Spiel ein Update bekommt und die Aufzählung aller Chat-Typen aufgrund von geänderten Werten ungültig sind oder Plugins erstellt einen benutzerdefinierten Chat-Typ, aus welchen Gründen auch immer.</value>
   </data>
+  <data name="Loc_Command_playertags_v2" xml:space="preserve">
+    <value>Zeigt das Konfigurationsfester Player Tags
+Unterbefehle:
+enableglobal on|of|toggle -&gt; Setzt einen globalen Hauptschalter, welcher alle PluginFeaturues ein- bzw. ausschalten kann, ohne die Konfiguration selbst zu ändern.</value>
+  </data>
 </root>
