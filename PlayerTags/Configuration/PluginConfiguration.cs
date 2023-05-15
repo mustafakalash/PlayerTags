@@ -23,6 +23,7 @@ namespace PlayerTags.Configuration
         public int RootVersion { get; private set; } = DEFAULT_CONFIG_VERSION;
         public int Version { get; set; } = DEFAULT_CONFIG_VERSION;
         public bool IsVisible = false;
+        public bool EnabledGlobal = true;
 
         [JsonProperty("GeneralOptionsV2")]
         public Dictionary<ActivityType, GeneralOptionsClass> GeneralOptions = new()

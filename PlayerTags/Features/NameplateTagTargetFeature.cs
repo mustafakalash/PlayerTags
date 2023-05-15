@@ -24,16 +24,12 @@ namespace PlayerTags.Features
     /// </summary>
     public class NameplateTagTargetFeature : TagTargetFeature
     {
-        private readonly PluginConfiguration m_PluginConfiguration;
-        private readonly PluginData m_PluginData;
         private readonly StatusIconPriorizer statusiconPriorizer;
         private readonly JobIconSets jobIconSets = new();
         private Nameplate? m_Nameplate;
 
-        public NameplateTagTargetFeature(PluginConfiguration pluginConfiguration, PluginData pluginData)
+        public NameplateTagTargetFeature(PluginConfiguration pluginConfiguration, PluginData pluginData) : base(pluginConfiguration, pluginData)
         {
-            m_PluginConfiguration = pluginConfiguration;
-            m_PluginData = pluginData;
             statusiconPriorizer = new(pluginConfiguration.StatusIconPriorizerSettings);
 
             PluginServices.ClientState.Login += ClientState_Login;
@@ -111,9 +107,11 @@ namespace PlayerTags.Features
 
         private unsafe void Nameplate_PlayerNameplateUpdated(PlayerNameplateUpdatedArgs args)
         {
+            if (!EnableGlobal) return;
+
             var beforeTitleBytes = args.Title.Encode();
             var iconID = args.IconId;
-            var generalOptions = m_PluginConfiguration.GeneralOptions[ActivityContextManager.CurrentActivityContext.ActivityType];
+            var generalOptions = pluginConfiguration.GeneralOptions[ActivityContextManager.CurrentActivityContext.ActivityType];
 
             AddTagsToNameplate(args.PlayerCharacter, args.Name, args.Title, args.FreeCompany, ref iconID, generalOptions);
 
@@ -184,14 +182,14 @@ namespace PlayerTags.Features
                 var classJobGameData = classJob?.GameData;
 
                 // Add the job tags
-                if (classJobGameData != null && m_PluginData.JobTags.TryGetValue(classJobGameData.Abbreviation, out var jobTag))
+                if (classJobGameData != null && pluginData.JobTags.TryGetValue(classJobGameData.Abbreviation, out var jobTag))
                 {
                     if (jobTag.TagTargetInNameplates.InheritedValue != null && jobTag.TagPositionInNameplates.InheritedValue != null)
                         checkTag(jobTag);
                 }
 
                 // Add the randomly generated name tag payload
-                if (m_PluginConfiguration.IsPlayerNameRandomlyGenerated)
+                if (pluginConfiguration.IsPlayerNameRandomlyGenerated)
                 {
                     var characterName = playerCharacter.Name.TextValue;
                     if (characterName != null)
@@ -203,10 +201,10 @@ namespace PlayerTags.Features
                 }
 
                 // Add custom tags
-                Identity identity = m_PluginData.GetIdentity(playerCharacter);
+                Identity identity = pluginData.GetIdentity(playerCharacter);
                 foreach (var customTagId in identity.CustomTagIds)
                 {
-                    var customTag = m_PluginData.CustomTags.FirstOrDefault(tag => tag.CustomId.Value == customTagId);
+                    var customTag = pluginData.CustomTags.FirstOrDefault(tag => tag.CustomId.Value == customTagId);
                     if (customTag != null)
                         checkTag(customTag);
                 }
@@ -228,7 +226,7 @@ namespace PlayerTags.Features
             if (newStatusIcon != null)
             {
                 var change = nameplateChanges.GetChange(NameplateElements.Name, StringPosition.Before);
-                NameplateUpdateFactory.ApplyStatusIconWithPrio(ref statusIcon, (int)newStatusIcon, change, ActivityContextManager.CurrentActivityContext, statusiconPriorizer, m_PluginConfiguration.MoveStatusIconToNameplateTextIfPossible);
+                NameplateUpdateFactory.ApplyStatusIconWithPrio(ref statusIcon, (int)newStatusIcon, change, ActivityContextManager.CurrentActivityContext, statusiconPriorizer, pluginConfiguration.MoveStatusIconToNameplateTextIfPossible);
             }
 
             // Gray out the nameplate
@@ -241,15 +239,15 @@ namespace PlayerTags.Features
             if (playerCharacter != null && (!playerCharacter.IsDead || generalOptions.NameplateDeadPlayerHandling == DeadPlayerHandling.Include))
             {
                 // An additional step to apply text color to additional locations
-                Identity identity = m_PluginData.GetIdentity(playerCharacter);
+                Identity identity = pluginData.GetIdentity(playerCharacter);
                 foreach (var customTagId in identity.CustomTagIds)
                 {
-                    var customTag = m_PluginData.CustomTags.FirstOrDefault(tag => tag.CustomId.Value == customTagId);
+                    var customTag = pluginData.CustomTags.FirstOrDefault(tag => tag.CustomId.Value == customTagId);
                     if (customTag != null)
                         applyTextFormatting(customTag);
                 }
 
-                if (playerCharacter.ClassJob.GameData != null && m_PluginData.JobTags.TryGetValue(playerCharacter.ClassJob.GameData.Abbreviation, out var jobTag))
+                if (playerCharacter.ClassJob.GameData != null && pluginData.JobTags.TryGetValue(playerCharacter.ClassJob.GameData.Abbreviation, out var jobTag))
                     applyTextFormatting(jobTag);
 
                 void applyTextFormatting(Tag tag)

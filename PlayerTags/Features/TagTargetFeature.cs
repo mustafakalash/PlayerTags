@@ -6,6 +6,7 @@ using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using Lumina.Excel.GeneratedSheets;
 using Pilz.Dalamud.ActivityContexts;
 using Pilz.Dalamud.Tools.Strings;
+using PlayerTags.Configuration;
 using PlayerTags.Configuration.GameConfig;
 using PlayerTags.Data;
 using PlayerTags.Inheritables;
@@ -20,11 +21,11 @@ namespace PlayerTags.Features
     /// <summary>
     /// The base of a feature that adds tags to UI elements.
     /// </summary>
-    public abstract class TagTargetFeature : IDisposable
+    public abstract class TagTargetFeature : FeatureBase, IDisposable
     {
         public ActivityContextManager ActivityContextManager { get; init; }
 
-        public TagTargetFeature()
+        protected TagTargetFeature(PluginConfiguration pluginConfiguration, PluginData pluginData) : base(pluginConfiguration, pluginData)
         {
             ActivityContextManager = new();
         }

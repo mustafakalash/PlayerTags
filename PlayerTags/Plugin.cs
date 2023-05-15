@@ -10,6 +10,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
 
 namespace PlayerTags
 {
@@ -17,6 +18,10 @@ namespace PlayerTags
     {
         public string Name => "Player Tags";
         private const string c_CommandName = "/playertags";
+        private const string c_SubCommandName_EnableGlobal = "enableglobal";
+        private const string c_CommandArg_On = "on";
+        private const string c_CommandArg_Off = "off";
+        private const string c_CommandArg_toggle = "toggle";
 
         private PluginConfiguration m_PluginConfiguration;
         private PluginData m_PluginData;
@@ -40,9 +45,9 @@ namespace PlayerTags
 
             PluginServices.DalamudPluginInterface.UiBuilder.Draw += UiBuilder_Draw;
             PluginServices.DalamudPluginInterface.UiBuilder.OpenConfigUi += UiBuilder_OpenConfigUi;
-            PluginServices.CommandManager.AddHandler(c_CommandName, new CommandInfo((string command, string arguments) => UiBuilder_OpenConfigUi())
+            PluginServices.CommandManager.AddHandler(c_CommandName, new CommandInfo(CommandManager_Handler)
             {
-                HelpMessage = Resources.Strings.Loc_Command_playertags
+                HelpMessage = Resources.Strings.Loc_Command_playertags_v2
             });
             m_CustomTagsContextMenuFeature = new CustomTagsContextMenuFeature(m_PluginConfiguration, m_PluginData);
             m_NameplatesTagTargetFeature = new NameplateTagTargetFeature(m_PluginConfiguration, m_PluginData);
@@ -63,6 +68,44 @@ namespace PlayerTags
         private void DalamudPluginInterface_LanguageChanged(string langCode)
         {
             Localizer.SetLanguage(langCode);
+        }
+
+        private void CommandManager_Handler(string command, string arguments)
+        {
+            switch (command)
+            {
+                case c_CommandName:
+                    if (string.IsNullOrWhiteSpace(command))
+                        UiBuilder_OpenConfigUi();
+                    else
+                    {
+                        var lowerArgs = arguments.ToLower().Split(' ');
+                        if (lowerArgs.Length >= 1)
+                        {
+                            switch (lowerArgs[0])
+                            {
+                                case c_SubCommandName_EnableGlobal:
+                                    if (lowerArgs.Length >= 2)
+                                    {
+                                        switch (lowerArgs[0])
+                                        {
+                                            case c_CommandArg_On:
+                                                m_PluginConfiguration.EnabledGlobal = true;
+                                                break;
+                                            case c_CommandArg_Off:
+                                                m_PluginConfiguration.EnabledGlobal = false;
+                                                break;
+                                            case c_CommandArg_toggle:
+                                                m_PluginConfiguration.EnabledGlobal = !m_PluginConfiguration.EnabledGlobal;
+                                                break;
+                                        }
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                    break;
+            }
         }
 
         private void UiBuilder_Draw()

@@ -13,7 +13,7 @@ namespace PlayerTags.Features
     /// <summary>
     /// A feature that adds options for the management of custom tags to context menus.
     /// </summary>
-    public class CustomTagsContextMenuFeature : IDisposable
+    public class CustomTagsContextMenuFeature : FeatureBase, IDisposable
     {
         private string?[] SupportedAddonNames = new string?[]
         {
@@ -31,15 +31,10 @@ namespace PlayerTags.Features
             "SocialList",
         };
 
-        private PluginConfiguration m_PluginConfiguration;
-        private PluginData m_PluginData;
         private DalamudContextMenu? m_ContextMenu;
 
-        public CustomTagsContextMenuFeature(PluginConfiguration pluginConfiguration, PluginData pluginData)
+        public CustomTagsContextMenuFeature(PluginConfiguration pluginConfiguration, PluginData pluginData) : base(pluginConfiguration, pluginData)
         {
-            m_PluginConfiguration = pluginConfiguration;
-            m_PluginData = pluginData;
-
             m_ContextMenu = new DalamudContextMenu();
             m_ContextMenu.OnOpenGameObjectContextMenu += ContextMenuHooks_ContextMenuOpened;
         }
@@ -56,17 +51,17 @@ namespace PlayerTags.Features
 
         private void ContextMenuHooks_ContextMenuOpened(GameObjectContextMenuOpenArgs contextMenuOpenedArgs)
         {
-            if (!m_PluginConfiguration.IsCustomTagsContextMenuEnabled
+            if (!EnableGlobal || !pluginConfiguration.IsCustomTagsContextMenuEnabled
                 || !SupportedAddonNames.Contains(contextMenuOpenedArgs.ParentAddonName))
             {
                 return;
             }
 
-            Identity? identity = m_PluginData.GetIdentity(contextMenuOpenedArgs);
+            Identity? identity = pluginData.GetIdentity(contextMenuOpenedArgs);
             if (identity != null)
             {
                 var allTags = new Dictionary<Tag, bool>();
-                foreach (var customTag in m_PluginData.CustomTags)
+                foreach (var customTag in pluginData.CustomTags)
                 {
                     var isAdded = identity.CustomTagIds.Contains(customTag.CustomId.Value);
                     allTags.Add(customTag, isAdded);
@@ -86,10 +81,10 @@ namespace PlayerTags.Features
                         new GameObjectContextMenuItem(menuItemText, openedEventArgs =>
                         {
                             if (tag.Value)
-                                m_PluginData.RemoveCustomTagFromIdentity(tag.Key, identity);
+                                pluginData.RemoveCustomTagFromIdentity(tag.Key, identity);
                             else
-                                m_PluginData.AddCustomTagToIdentity(tag.Key, identity);
-                            m_PluginConfiguration.Save(m_PluginData);
+                                pluginData.AddCustomTagToIdentity(tag.Key, identity);
+                            pluginConfiguration.Save(pluginData);
                         })
                         {
                             IsSubMenu = false

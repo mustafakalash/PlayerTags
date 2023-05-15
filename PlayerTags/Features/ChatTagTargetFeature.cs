@@ -102,14 +102,8 @@ namespace PlayerTags.Features
             }
         }
 
-        private PluginConfiguration m_PluginConfiguration;
-        private PluginData m_PluginData;
-
-        public ChatTagTargetFeature(PluginConfiguration pluginConfiguration, PluginData pluginData)
+        public ChatTagTargetFeature(PluginConfiguration pluginConfiguration, PluginData pluginData) : base(pluginConfiguration, pluginData)
         {
-            m_PluginConfiguration = pluginConfiguration;
-            m_PluginData = pluginData;
-
             PluginServices.ChatGui.ChatMessage += Chat_ChatMessage;
         }
 
@@ -121,7 +115,7 @@ namespace PlayerTags.Features
 
         private void Chat_ChatMessage(XivChatType type, uint senderId, ref SeString sender, ref SeString message, ref bool isHandled)
         {
-            if (m_PluginConfiguration.GeneralOptions[ActivityContextManager.CurrentActivityContext.ActivityType].IsApplyTagsToAllChatMessagesEnabled)
+            if (EnableGlobal && pluginConfiguration.GeneralOptions[ActivityContextManager.CurrentActivityContext.ActivityType].IsApplyTagsToAllChatMessagesEnabled)
             {
                 AddTagsToChat(sender, type, true);
                 AddTagsToChat(message, type, false);
@@ -347,7 +341,7 @@ namespace PlayerTags.Features
                 if (stringMatch.GameObject is PlayerCharacter playerCharacter)
                 {
                     // Add the job tag
-                    if (playerCharacter.ClassJob.GameData != null && m_PluginData.JobTags.TryGetValue(playerCharacter.ClassJob.GameData.Abbreviation, out var jobTag))
+                    if (playerCharacter.ClassJob.GameData != null && pluginData.JobTags.TryGetValue(playerCharacter.ClassJob.GameData.Abbreviation, out var jobTag))
                     {
                         if (isTagEnabled(jobTag))
                         {
@@ -361,7 +355,7 @@ namespace PlayerTags.Features
                     }
 
                     // Add randomly generated name tag payload
-                    if (m_PluginConfiguration.IsPlayerNameRandomlyGenerated)
+                    if (pluginConfiguration.IsPlayerNameRandomlyGenerated)
                     {
                         var playerName = stringMatch.GetMatchText();
                         if (playerName != null)
@@ -378,10 +372,10 @@ namespace PlayerTags.Features
                 // Add custom tags
                 if (stringMatch.PlayerPayload != null)
                 {
-                    Identity identity = m_PluginData.GetIdentity(stringMatch.PlayerPayload);
+                    Identity identity = pluginData.GetIdentity(stringMatch.PlayerPayload);
                     foreach (var customTagId in identity.CustomTagIds)
                     {
-                        var customTag = m_PluginData.CustomTags.FirstOrDefault(tag => tag.CustomId.Value == customTagId);
+                        var customTag = pluginData.CustomTags.FirstOrDefault(tag => tag.CustomId.Value == customTagId);
                         if (customTag != null)
                         {
                             if (isTagEnabled(customTag))
@@ -407,17 +401,17 @@ namespace PlayerTags.Features
                 // An additional step to apply text color to additional locations
                 if (stringMatch.PlayerPayload != null && stringMatch.DisplayTextPayloads.Any())
                 {
-                    Identity identity = m_PluginData.GetIdentity(stringMatch.PlayerPayload);
+                    Identity identity = pluginData.GetIdentity(stringMatch.PlayerPayload);
 
                     if (stringMatch.GameObject is PlayerCharacter playerCharacter1)
                     {
-                        if (playerCharacter1.ClassJob.GameData != null && m_PluginData.JobTags.TryGetValue(playerCharacter1.ClassJob.GameData.Abbreviation, out var jobTag) && isTagEnabled(jobTag))
+                        if (playerCharacter1.ClassJob.GameData != null && pluginData.JobTags.TryGetValue(playerCharacter1.ClassJob.GameData.Abbreviation, out var jobTag) && isTagEnabled(jobTag))
                             applyTextFormatting(jobTag);
                     }
 
                     foreach (var customTagId in identity.CustomTagIds)
                     {
-                        var customTag = m_PluginData.CustomTags.FirstOrDefault(tag => tag.CustomId.Value == customTagId);
+                        var customTag = pluginData.CustomTags.FirstOrDefault(tag => tag.CustomId.Value == customTagId);
                         if (customTag != null && isTagEnabled(customTag))
                             applyTextFormatting(customTag);
                     }
