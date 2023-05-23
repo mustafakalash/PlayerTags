@@ -50,7 +50,6 @@ namespace PlayerTags.Data
 
         private void Clear()
         {
-
             RoleTags = new Dictionary<Role, Tag>();
             DpsRoleTags = new Dictionary<DpsRole, Tag>();
             RangedDpsRoleTags = new Dictionary<RangedDpsRole, Tag>();
