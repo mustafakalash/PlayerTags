@@ -33,7 +33,7 @@ namespace PlayerTags.Configuration
             { ActivityType.PvpDuty, new GeneralOptionsClass() }
         };
 
-        public DefaultPluginDataTemplate DefaultPluginDataTemplate = DefaultPluginDataTemplate.Simple;
+        public DefaultPluginDataTemplate DefaultPluginDataTemplate = DefaultPluginDataTemplate.None;
         public StatusIconPriorizerSettings StatusIconPriorizerSettings = new(true);
         public bool MoveStatusIconToNameplateTextIfPossible = true;
         public bool IsPlayerNameRandomlyGenerated = false;
@@ -242,6 +242,13 @@ namespace PlayerTags.Configuration
             File.WriteAllText(configFilePath, configFileContent);
         }
 
+        private static void BackupPluginConfig()
+        {
+            var configFilePath = GetConfigFilePath();
+            var configFilePathOld = Path.ChangeExtension(configFilePath, ".old" + Path.GetExtension(configFilePath));
+            File.Copy(configFilePath, configFilePathOld, true);
+        }
+
         public static PluginConfiguration LoadPluginConfig()
         {
             var configFilePath = GetConfigFilePath();
@@ -257,6 +264,15 @@ namespace PlayerTags.Configuration
                 // Try loading the old settings, if possible
                 configFilePath = PluginServices.DalamudPluginInterface.ConfigFile.FullName;
                 config = PluginServices.DalamudPluginInterface.GetPluginConfig();
+            }
+
+            if (config is PluginConfiguration pluginConfig)
+            {
+                if (PluginConfigFix(pluginConfig))
+                {
+                    BackupPluginConfig();
+                    pluginConfig.SavePluginConfig();
+                }
             }
 
             return config as PluginConfiguration;
@@ -278,6 +294,50 @@ namespace PlayerTags.Configuration
             jsonSettings.Converters.Add(new StringEnumConverter());
 
             return jsonSettings;
+        }
+
+        private static bool PluginConfigFix(PluginConfiguration config)
+        {
+            bool hasFixes = false;
+
+            // Patch 6.4 - Disable all Job & Role specific colors & prefix
+            // Not used yet, but keeping it there, just for the case,
+            //if (config.Version <= 1)
+            //{
+            //    void fixTags(Dictionary<string, InheritableData> dic)
+            //    {
+            //        foreach (var change in config.AllRoleTagsChanges.ToArray())
+            //        {
+            //            var key = change.Key;
+            //            if (key == nameof(Tag.IsTextVisibleInChat) ||
+            //                key == nameof(Tag.IsTextVisibleInNameplates) ||
+            //                key == nameof(Tag.IsRoleIconVisibleInChat) ||
+            //                key == nameof(Tag.IsRoleIconVisibleInNameplates) ||
+            //                key == nameof(Tag.IsTextColorAppliedToNameplateName) ||
+            //                key == nameof(Tag.IsTextColorAppliedToChatName) ||
+            //                key == nameof(Tag.IsJobIconVisibleInNameplates))
+            //            {
+            //                var data = change.Value;
+            //                data.Behavior = InheritableBehavior.Disabled;
+            //            }
+            //        }
+            //    }
+
+            //    // "All Roles" tag changes
+            //    fixTags(config.AllRoleTagsChanges);
+                
+            //    // Role tags changes
+            //    foreach (var kvp in config.RoleTagsChanges)
+            //        fixTags(kvp.Value);
+
+            //    // Job tags changes
+            //    foreach (var kvp in config.JobTagsChanges)
+            //        fixTags(kvp.Value);
+
+            //    hasFixes = true;
+            //}
+
+            return hasFixes;
         }
     }
 
