@@ -1,4 +1,4 @@
 [submodule "Pilz.Dalamud"]
-path = Dalamud.ContextMenu
+path = Pilz.Dalamud
 url = https://github.com/Pilzinsel64/Pilz.Dalamud
 branch = master
