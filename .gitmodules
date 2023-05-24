@@ -1,4 +1,4 @@
 [submodule "Pilz.Dalamud"]
-path = Pilz.Dalamud
-url = https://github.com/Pilzinsel64/Pilz.Dalamud
+	path = Pilz.Dalamud
+	url = https://github.com/Pilzinsel64/Pilz.Dalamud.git
 branch = master

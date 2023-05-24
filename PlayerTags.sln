@@ -5,7 +5,7 @@ VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerTags", "PlayerTags\PlayerTags.csproj", "{13C812E9-0D42-4B95-8646-40EEBF30636F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pilz.Dalamud", "Pilz.Dalamud\Pilz.Dalamud.csproj", "{D0362D71-E77F-4739-80BE-CD4454188B8F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pilz.Dalamud", "Pilz.Dalamud\Pilz.Dalamud\Pilz.Dalamud.csproj", "{D0362D71-E77F-4739-80BE-CD4454188B8F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
