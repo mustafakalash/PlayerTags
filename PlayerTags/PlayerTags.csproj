@@ -24,8 +24,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Dalamud.ContextMenu" Version="1.2.1" />
-        <PackageReference Include="DalamudPackager" Version="2.1.10" />
+        <PackageReference Include="Dalamud.ContextMenu" Version="1.2.3" />
+        <PackageReference Include="DalamudPackager" Version="2.1.11" />
         <ProjectReference Include="..\Pilz.Dalamud\Pilz.Dalamud\Pilz.Dalamud.csproj" />
         <Reference Include="FFXIVClientStructs">
             <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
