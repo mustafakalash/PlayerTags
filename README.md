@@ -21,6 +21,7 @@ If you want to contribute to a language that isn't listed, just tell me with an 
 | Spanish | Risu
 | French | Khayle
 | Japanese | Refer
+| Chinese | Andypsl8, yqdyqd
 | ... | You?
 
 # Credits
