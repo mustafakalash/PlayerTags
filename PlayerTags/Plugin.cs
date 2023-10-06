@@ -23,13 +23,13 @@ namespace PlayerTags
         private const string c_CommandArg_Off = "off";
         private const string c_CommandArg_toggle = "toggle";
 
-        private PluginConfiguration pluginConfiguration = null;
-        private PluginData pluginData = null;
-        private PluginConfigurationUI pluginConfigurationUI = null;
+        private readonly PluginConfiguration pluginConfiguration = null;
+        private readonly PluginData pluginData = null;
+        private readonly PluginConfigurationUI pluginConfigurationUI = null;
 
-        private CustomTagsContextMenuFeature customTagsContextMenuFeature;
-        private NameplateTagTargetFeature nameplatesTagTargetFeature;
-        private ChatTagTargetFeature chatTagTargetFeature;
+        private readonly CustomTagsContextMenuFeature customTagsContextMenuFeature;
+        private readonly NameplateTagTargetFeature nameplatesTagTargetFeature;
+        private readonly ChatTagTargetFeature chatTagTargetFeature;
 
         public Plugin(DalamudPluginInterface pluginInterface)
         {

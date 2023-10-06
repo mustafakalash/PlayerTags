@@ -52,16 +52,13 @@ namespace PlayerTags.Features
         {
             if (m_Nameplate == null)
             {
-                m_Nameplate = new Nameplate();
+                m_Nameplate = new();
+
                 if (!m_Nameplate.IsValid)
-                {
                     m_Nameplate = null;
-                }
 
                 if (m_Nameplate != null)
-                {
                     m_Nameplate.PlayerNameplateUpdated += Nameplate_PlayerNameplateUpdated;
-                }
             }
         }
 
@@ -88,20 +85,14 @@ namespace PlayerTags.Features
         protected override bool IsIconVisible(Tag tag)
         {
             if (tag.IsRoleIconVisibleInNameplates.InheritedValue != null)
-            {
                 return tag.IsRoleIconVisibleInNameplates.InheritedValue.Value;
-            }
-
             return false;
         }
 
         protected override bool IsTextVisible(Tag tag)
         {
             if (tag.IsTextVisibleInNameplates.InheritedValue != null)
-            {
                 return tag.IsTextVisibleInNameplates.InheritedValue.Value;
-            }
-
             return false;
         }
 
