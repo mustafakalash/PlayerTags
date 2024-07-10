@@ -1,8 +1,7 @@
-﻿namespace PlayerTags.Data
+﻿namespace PlayerTags.Data;
+
+public enum LandHandRole
 {
-    public enum LandHandRole
-    {
-        Land,
-        Hand
-    }
+    Land,
+    Hand
 }

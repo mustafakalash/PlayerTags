@@ -1,18 +1,17 @@
-﻿namespace PlayerTags.PluginStrings
+﻿namespace PlayerTags.PluginStrings;
+
+public class LiteralPluginString : IPluginString
 {
-    public class LiteralPluginString : IPluginString
+    private string m_Value;
+    public string Value => m_Value;
+
+    public LiteralPluginString(string value)
     {
-        private string m_Value;
-        public string Value => m_Value;
+        m_Value = value;
+    }
 
-        public LiteralPluginString(string value)
-        {
-            m_Value = value;
-        }
-
-        public override string ToString()
-        {
-            return Value;
-        }
+    public override string ToString()
+    {
+        return Value;
     }
 }

@@ -1,8 +1,7 @@
-﻿    namespace PlayerTags.Data
+﻿namespace PlayerTags.Data;
+
+public enum TagTarget
 {
-    public enum TagTarget
-    {
-        Chat,
-        Nameplate
-    }
+    Chat,
+    Nameplate
 }

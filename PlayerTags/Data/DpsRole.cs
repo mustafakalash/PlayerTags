@@ -1,8 +1,7 @@
-﻿namespace PlayerTags.Data
+﻿namespace PlayerTags.Data;
+
+public enum DpsRole
 {
-    public enum DpsRole
-    {
-        Melee,
-        Ranged
-    }
+    Melee,
+    Ranged
 }

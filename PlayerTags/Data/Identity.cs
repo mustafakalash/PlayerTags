@@ -2,100 +2,99 @@
 using System;
 using System.Collections.Generic;
 
-namespace PlayerTags.Data
+namespace PlayerTags.Data;
+
+public class Identity : IComparable<Identity>, IEquatable<Identity>
 {
-    public class Identity : IComparable<Identity>, IEquatable<Identity>
+    public string Name { get; init; }
+    public uint? WorldId { get; set; } = null;
+    public List<Guid> CustomTagIds { get; init; } = [];
+
+    [JsonIgnore]
+    public string? WorldName => WorldHelper.GetWorldName(WorldId);
+
+    public Identity(string name)
     {
-        public string Name { get; init; }
-        public uint? WorldId { get; set; } = null;
-        public List<Guid> CustomTagIds { get; init; } = new List<Guid>();
+        Name = name;
+    }
 
-        [JsonIgnore]
-        public string? WorldName => WorldHelper.GetWorldName(WorldId);
+    public override string ToString()
+    {
+        string str = Name;
 
-        public Identity(string name)
+        if (WorldId != null)
         {
-            Name = name;
+            str += $"@{WorldName}";
         }
 
-        public override string ToString()
+        return str;
+    }
+
+    public int CompareTo(Identity? other)
+    {
+        string? otherToString = null;
+        if (!(other is null))
         {
-            string str = Name;
-
-            if (WorldId != null)
-            {
-                str += $"@{WorldName}";
-            }
-
-            return str;
+            otherToString = other.ToString();
         }
 
-        public int CompareTo(Identity? other)
-        {
-            string? otherToString = null;
-            if (!(other is null))
-            {
-                otherToString = other.ToString();
-            }
+        return ToString().CompareTo(otherToString);
+    }
 
-            return ToString().CompareTo(otherToString);
+    public override bool Equals(object? obj)
+    {
+        return obj is Identity identity && Equals(identity);
+    }
+
+    public bool Equals(Identity? obj)
+    {
+        if (obj is null)
+        {
+            return false;
         }
 
-        public override bool Equals(object? obj)
+        return this == obj;
+    }
+
+    public static bool operator ==(Identity? first, Identity? second)
+    {
+        if (ReferenceEquals(first, second))
         {
-            return obj is Identity identity && Equals(identity);
+            return true;
         }
 
-        public bool Equals(Identity? obj)
+        if (first is null && second is null)
         {
-            if (obj is null)
-            {
-                return false;
-            }
-
-            return this == obj;
+            return true;
         }
 
-        public static bool operator ==(Identity? first, Identity? second)
+        if (first is null || second is null)
         {
-            if (ReferenceEquals(first, second))
-            {
-                return true;
-            }
-
-            if (first is null && second is null)
-            {
-                return true;
-            }
-
-            if (first is null || second is null)
-            {
-                return false;
-            }
-
-            bool areNamesEqual = first.Name.ToLower().Trim() == second.Name.ToLower().Trim();
-
-            // If one of the worlds are null then it's technically equal as it could be promoted to the identity that does have a world
-            bool areWorldsEqual = first.WorldId == null || second.WorldId == null || first.WorldId == second.WorldId;
-
-            return areNamesEqual && areWorldsEqual;
+            return false;
         }
 
-        public static bool operator !=(Identity? first, Identity? second)
+        bool areNamesEqual = first.Name.ToLower().Trim() == second.Name.ToLower().Trim();
+
+        // If one of the worlds are null then it's technically equal as it could be promoted to the identity that does have a world
+        bool areWorldsEqual = first.WorldId == null || second.WorldId == null || first.WorldId == second.WorldId;
+
+        return areNamesEqual && areWorldsEqual;
+    }
+
+    public static bool operator !=(Identity? first, Identity? second)
+    {
+        return !(first == second);
+    }
+
+    public override int GetHashCode()
+    {
+        var hashCode = Name.GetHashCode();
+
+        if (WorldName != null)
         {
-            return !(first == second);
+            hashCode *= 17 ^ WorldName.GetHashCode();
         }
 
-        public override int GetHashCode()
-        {
-            var hashCode = Name.GetHashCode();
-
-            if (WorldName != null)
-            {
-                hashCode *= 17 ^ WorldName.GetHashCode();
-            }
-
-            return hashCode;
-        }
+        return hashCode;
     }
 }

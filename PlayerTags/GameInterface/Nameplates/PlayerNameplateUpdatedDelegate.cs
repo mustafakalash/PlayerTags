@@ -1,4 +1,3 @@
-﻿namespace PlayerTags.GameInterface.Nameplates
-{
-    public delegate void PlayerNameplateUpdatedDelegate(PlayerNameplateUpdatedArgs args);
-}
+﻿namespace PlayerTags.GameInterface.Nameplates;
+
+public delegate void PlayerNameplateUpdatedDelegate(PlayerNameplateUpdatedArgs args);

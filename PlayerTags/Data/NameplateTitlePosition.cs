@@ -1,12 +1,11 @@
 ﻿using Newtonsoft.Json;
 
-namespace PlayerTags.Data
+namespace PlayerTags.Data;
+
+[JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
+public enum NameplateTitlePosition
 {
-    [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-    public enum NameplateTitlePosition
-    {
-        Default,
-        AlwaysAboveName,
-        AlwaysBelowName
-    }
+    Default,
+    AlwaysAboveName,
+    AlwaysBelowName
 }

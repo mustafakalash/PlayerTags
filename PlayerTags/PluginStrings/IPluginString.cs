@@ -1,7 +1,6 @@
-﻿namespace PlayerTags.PluginStrings
+﻿namespace PlayerTags.PluginStrings;
+
+public interface IPluginString
 {
-    public interface IPluginString
-    {
-        public string Value { get; }
-    }
+    public string Value { get; }
 }

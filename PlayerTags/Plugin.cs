@@ -1,123 +1,113 @@
 ﻿using Dalamud.Game.Command;
-using Dalamud.Logging;
 using Dalamud.Plugin;
-using Dalamud.Plugin.Internal;
-using FFXIVClientStructs.FFXIV.Client.UI.Misc;
-using Lumina.Excel.GeneratedSheets;
 using PlayerTags.Configuration;
 using PlayerTags.Data;
 using PlayerTags.Features;
-using System;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Security.Cryptography;
 
-namespace PlayerTags
+namespace PlayerTags;
+
+public sealed class Plugin : IDalamudPlugin
 {
-    public sealed class Plugin : IDalamudPlugin
+    private const string c_CommandName = "/playertags";
+    private const string c_SubCommandName_EnableGlobal = "enableglobal";
+    private const string c_CommandArg_On = "on";
+    private const string c_CommandArg_Off = "off";
+    private const string c_CommandArg_toggle = "toggle";
+
+    private readonly PluginConfiguration pluginConfiguration = null;
+    private readonly PluginData pluginData = null;
+    private readonly PluginConfigurationUI pluginConfigurationUI = null;
+
+    private readonly CustomTagsContextMenuFeature customTagsContextMenuFeature;
+    private readonly NameplateTagTargetFeature nameplatesTagTargetFeature;
+    private readonly ChatTagTargetFeature chatTagTargetFeature;
+
+    public Plugin(IDalamudPluginInterface pluginInterface)
     {
-        private const string c_CommandName = "/playertags";
-        private const string c_SubCommandName_EnableGlobal = "enableglobal";
-        private const string c_CommandArg_On = "on";
-        private const string c_CommandArg_Off = "off";
-        private const string c_CommandArg_toggle = "toggle";
+        PluginServices.Initialize(pluginInterface);
+        Pilz.Dalamud.PluginServices.Initialize(pluginInterface);
 
-        private readonly PluginConfiguration pluginConfiguration = null;
-        private readonly PluginData pluginData = null;
-        private readonly PluginConfigurationUI pluginConfigurationUI = null;
+        pluginConfiguration = PluginConfiguration.LoadPluginConfig() ?? new PluginConfiguration();
+        pluginData = new PluginData(pluginConfiguration);
+        pluginConfigurationUI = new PluginConfigurationUI(pluginConfiguration, pluginData);
 
-        private readonly CustomTagsContextMenuFeature customTagsContextMenuFeature;
-        private readonly NameplateTagTargetFeature nameplatesTagTargetFeature;
-        private readonly ChatTagTargetFeature chatTagTargetFeature;
+        Localizer.SetLanguage(PluginServices.DalamudPluginInterface.UiLanguage);
+        PluginServices.DalamudPluginInterface.LanguageChanged += DalamudPluginInterface_LanguageChanged;
 
-        public Plugin(IDalamudPluginInterface pluginInterface)
+        PluginServices.DalamudPluginInterface.UiBuilder.Draw += UiBuilder_Draw;
+        PluginServices.DalamudPluginInterface.UiBuilder.OpenConfigUi += UiBuilder_OpenConfigUi;
+        PluginServices.CommandManager.AddHandler(c_CommandName, new CommandInfo(CommandManager_Handler)
         {
-            PluginServices.Initialize(pluginInterface);
-            Pilz.Dalamud.PluginServices.Initialize(pluginInterface);
+            HelpMessage = Resources.Strings.Loc_Command_playertags_v2
+        });
+        customTagsContextMenuFeature = new CustomTagsContextMenuFeature(pluginConfiguration, pluginData, pluginInterface);
+        nameplatesTagTargetFeature = new NameplateTagTargetFeature(pluginConfiguration, pluginData);
+        chatTagTargetFeature = new ChatTagTargetFeature(pluginConfiguration, pluginData);
+    }
 
-            pluginConfiguration = PluginConfiguration.LoadPluginConfig() ?? new PluginConfiguration();
-            pluginData = new PluginData(pluginConfiguration);
-            pluginConfigurationUI = new PluginConfigurationUI(pluginConfiguration, pluginData);
+    public void Dispose()
+    {
+        chatTagTargetFeature.Dispose();
+        nameplatesTagTargetFeature.Dispose();
+        customTagsContextMenuFeature.Dispose();
+        PluginServices.DalamudPluginInterface.LanguageChanged -= DalamudPluginInterface_LanguageChanged;
+        PluginServices.CommandManager.RemoveHandler(c_CommandName);
+        PluginServices.DalamudPluginInterface.UiBuilder.OpenConfigUi -= UiBuilder_OpenConfigUi;
+        PluginServices.DalamudPluginInterface.UiBuilder.Draw -= UiBuilder_Draw;
+    }
 
-            Localizer.SetLanguage(PluginServices.DalamudPluginInterface.UiLanguage);
-            PluginServices.DalamudPluginInterface.LanguageChanged += DalamudPluginInterface_LanguageChanged;
+    private void DalamudPluginInterface_LanguageChanged(string langCode)
+    {
+        Localizer.SetLanguage(langCode);
+    }
 
-            PluginServices.DalamudPluginInterface.UiBuilder.Draw += UiBuilder_Draw;
-            PluginServices.DalamudPluginInterface.UiBuilder.OpenConfigUi += UiBuilder_OpenConfigUi;
-            PluginServices.CommandManager.AddHandler(c_CommandName, new CommandInfo(CommandManager_Handler)
-            {
-                HelpMessage = Resources.Strings.Loc_Command_playertags_v2
-            });
-            customTagsContextMenuFeature = new CustomTagsContextMenuFeature(pluginConfiguration, pluginData, pluginInterface);
-            nameplatesTagTargetFeature = new NameplateTagTargetFeature(pluginConfiguration, pluginData);
-            chatTagTargetFeature = new ChatTagTargetFeature(pluginConfiguration, pluginData);
-        }
-
-        public void Dispose()
+    private void CommandManager_Handler(string command, string arguments)
+    {
+        switch (command)
         {
-            chatTagTargetFeature.Dispose();
-            nameplatesTagTargetFeature.Dispose();
-            customTagsContextMenuFeature.Dispose();
-            PluginServices.DalamudPluginInterface.LanguageChanged -= DalamudPluginInterface_LanguageChanged;
-            PluginServices.CommandManager.RemoveHandler(c_CommandName);
-            PluginServices.DalamudPluginInterface.UiBuilder.OpenConfigUi -= UiBuilder_OpenConfigUi;
-            PluginServices.DalamudPluginInterface.UiBuilder.Draw -= UiBuilder_Draw;
-        }
-
-        private void DalamudPluginInterface_LanguageChanged(string langCode)
-        {
-            Localizer.SetLanguage(langCode);
-        }
-
-        private void CommandManager_Handler(string command, string arguments)
-        {
-            switch (command)
-            {
-                case c_CommandName:
-                    if (string.IsNullOrWhiteSpace(arguments))
-                        UiBuilder_OpenConfigUi();
-                    else
+            case c_CommandName:
+                if (string.IsNullOrWhiteSpace(arguments))
+                    UiBuilder_OpenConfigUi();
+                else
+                {
+                    var lowerArgs = arguments.ToLower().Split(' ');
+                    if (lowerArgs.Length >= 1)
                     {
-                        var lowerArgs = arguments.ToLower().Split(' ');
-                        if (lowerArgs.Length >= 1)
+                        switch (lowerArgs[0])
                         {
-                            switch (lowerArgs[0])
-                            {
-                                case c_SubCommandName_EnableGlobal:
-                                    if (lowerArgs.Length >= 2)
+                            case c_SubCommandName_EnableGlobal:
+                                if (lowerArgs.Length >= 2)
+                                {
+                                    switch (lowerArgs[0])
                                     {
-                                        switch (lowerArgs[0])
-                                        {
-                                            case c_CommandArg_On:
-                                                pluginConfiguration.EnabledGlobal = true;
-                                                break;
-                                            case c_CommandArg_Off:
-                                                pluginConfiguration.EnabledGlobal = false;
-                                                break;
-                                            case c_CommandArg_toggle:
-                                                pluginConfiguration.EnabledGlobal = !pluginConfiguration.EnabledGlobal;
-                                                break;
-                                        }
+                                        case c_CommandArg_On:
+                                            pluginConfiguration.EnabledGlobal = true;
+                                            break;
+                                        case c_CommandArg_Off:
+                                            pluginConfiguration.EnabledGlobal = false;
+                                            break;
+                                        case c_CommandArg_toggle:
+                                            pluginConfiguration.EnabledGlobal = !pluginConfiguration.EnabledGlobal;
+                                            break;
                                     }
-                                    break;
-                            }
+                                }
+                                break;
                         }
                     }
-                    break;
-            }
+                }
+                break;
         }
+    }
 
-        private void UiBuilder_Draw()
-        {
-            if (pluginConfiguration.IsVisible)
-                pluginConfigurationUI.Draw();
-        }
+    private void UiBuilder_Draw()
+    {
+        if (pluginConfiguration.IsVisible)
+            pluginConfigurationUI.Draw();
+    }
 
-        private void UiBuilder_OpenConfigUi()
-        {
-            pluginConfiguration.IsVisible = true;
-            pluginConfiguration.Save(pluginData);
-        }
+    private void UiBuilder_OpenConfigUi()
+    {
+        pluginConfiguration.IsVisible = true;
+        pluginConfiguration.Save(pluginData);
     }
 }

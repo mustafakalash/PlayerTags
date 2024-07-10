@@ -1,65 +1,55 @@
-﻿using Dalamud.Game.ClientState.Objects.SubKinds;
-using Dalamud.Game.ClientState.Objects.Types;
-using Dalamud.Hooking;
-using Dalamud.Logging;
-using Dalamud.Utility.Signatures;
-using FFXIVClientStructs.FFXIV.Client.UI;
-using Pilz.Dalamud.Nameplates;
+﻿using Pilz.Dalamud.Nameplates;
 using System;
-using System.Diagnostics.Tracing;
-using System.Linq;
-using System.Runtime.InteropServices;
 
-namespace PlayerTags.GameInterface.Nameplates
+namespace PlayerTags.GameInterface.Nameplates;
+
+/// <summary>
+/// Provides an interface to modify nameplates.
+/// </summary>
+public class Nameplate : IDisposable
 {
+    public NameplateManager NameplateManager { get; init; }
+
     /// <summary>
-    /// Provides an interface to modify nameplates.
+    /// Occurs when a player nameplate is updated by the game.
     /// </summary>
-    public class Nameplate : IDisposable
+    public event PlayerNameplateUpdatedDelegate? PlayerNameplateUpdated;
+
+    /// <summary>
+    /// Whether the required hooks are in place and this instance is valid.
+    /// </summary>
+    public bool IsValid
     {
-        public NameplateManager NameplateManager { get; init; }
+        get => NameplateManager != null && NameplateManager.IsValid;
+    }
 
-        /// <summary>
-        /// Occurs when a player nameplate is updated by the game.
-        /// </summary>
-        public event PlayerNameplateUpdatedDelegate? PlayerNameplateUpdated;
+    public Nameplate()
+    {
+        NameplateManager = new();
+        NameplateManager.Hooks.AddonNamePlate_SetPlayerNameManaged += Hooks_AddonNamePlate_SetPlayerNameManaged;
+    }
 
-        /// <summary>
-        /// Whether the required hooks are in place and this instance is valid.
-        /// </summary>
-        public bool IsValid
+    public void Dispose()
+    {
+        NameplateManager.Hooks.AddonNamePlate_SetPlayerNameManaged -= Hooks_AddonNamePlate_SetPlayerNameManaged;
+        NameplateManager.Dispose();
+    }
+
+    private void Hooks_AddonNamePlate_SetPlayerNameManaged(Pilz.Dalamud.Nameplates.EventArgs.AddonNamePlate_SetPlayerNameManagedEventArgs eventArgs)
+    {
+        try
         {
-            get => NameplateManager != null && NameplateManager.IsValid;
-        }
+            PlayerCharacter? playerCharacter = NameplateManager.GetNameplateGameObject<PlayerCharacter>(eventArgs.SafeNameplateObject);
 
-        public Nameplate()
-        {
-            NameplateManager = new();
-            NameplateManager.Hooks.AddonNamePlate_SetPlayerNameManaged += Hooks_AddonNamePlate_SetPlayerNameManaged;
-        }
-
-        public void Dispose()
-        {
-            NameplateManager.Hooks.AddonNamePlate_SetPlayerNameManaged -= Hooks_AddonNamePlate_SetPlayerNameManaged;
-            NameplateManager.Dispose();
-        }
-
-        private void Hooks_AddonNamePlate_SetPlayerNameManaged(Pilz.Dalamud.Nameplates.EventArgs.AddonNamePlate_SetPlayerNameManagedEventArgs eventArgs)
-        {
-            try
+            if (playerCharacter != null)
             {
-                PlayerCharacter? playerCharacter = NameplateManager.GetNameplateGameObject<PlayerCharacter>(eventArgs.SafeNameplateObject);
-
-                if (playerCharacter != null)
-                {
-                    var playerNameplateUpdatedArgs = new PlayerNameplateUpdatedArgs(playerCharacter, eventArgs);
-                    PlayerNameplateUpdated?.Invoke(playerNameplateUpdatedArgs);
-                }
+                var playerNameplateUpdatedArgs = new PlayerNameplateUpdatedArgs(playerCharacter, eventArgs);
+                PlayerNameplateUpdated?.Invoke(playerNameplateUpdatedArgs);
             }
-            catch (Exception ex)
-            {
-                PluginServices.PluginLog.Error(ex, $"SetPlayerNameplateDetour");
-            }
+        }
+        catch (Exception ex)
+        {
+            PluginServices.PluginLog.Error(ex, $"SetPlayerNameplateDetour");
         }
     }
 }

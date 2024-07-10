@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace PlayerTags.Data;
 
-namespace PlayerTags.Data
+public enum DefaultPluginDataTemplate
 {
-    public enum DefaultPluginDataTemplate
-    {
-        None,
-        Basic,
-        Simple,
-        Full
-    }
+    None,
+    Basic,
+    Simple,
+    Full
 }

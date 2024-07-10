@@ -1,66 +1,63 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using System.Collections.Generic;
 
-namespace PlayerTags.Inheritables
+namespace PlayerTags.Inheritables;
+
+public class InheritableReference<T> : IInheritable
+    where T : class
 {
-    public class InheritableReference<T> : IInheritable
-        where T : class
+    public IInheritable? Parent { get; set; }
+
+    public InheritableBehavior Behavior { get; set; }
+
+    [JsonProperty]
+    public T Value;
+
+    [JsonIgnore]
+    public T? InheritedValue
     {
-        public IInheritable? Parent { get; set; }
-
-        public InheritableBehavior Behavior { get; set; }
-
-        [JsonProperty]
-        public T Value;
-
-        [JsonIgnore]
-        public T? InheritedValue
+        get
         {
-            get
+            IInheritable? current = this;
+            while (current != null)
             {
-                IInheritable? current = this;
-                while (current != null)
+                if (current.Behavior == InheritableBehavior.Enabled && current is InheritableReference<T> currentOfSameType)
                 {
-                    if (current.Behavior == InheritableBehavior.Enabled && current is InheritableReference<T> currentOfSameType)
-                    {
-                        return currentOfSameType.Value;
-                    }
-                    else if (current.Behavior == InheritableBehavior.Disabled)
-                    {
-                        return default;
-                    }
-
-                    current = current.Parent;
+                    return currentOfSameType.Value;
+                }
+                else if (current.Behavior == InheritableBehavior.Disabled)
+                {
+                    return default;
                 }
 
-                return default;
+                current = current.Parent;
             }
-        }
 
-        public static implicit operator InheritableReference<T>(T value) => new InheritableReference<T>(value)
+            return default;
+        }
+    }
+
+    public static implicit operator InheritableReference<T>(T value) => new(value)
+    {
+        Behavior = InheritableBehavior.Enabled
+    };
+
+    public InheritableReference(T value)
+    {
+        Value = value;
+    }
+
+    public void SetData(InheritableData inheritableData)
+    {
+        Behavior = inheritableData.Behavior;
+        Value = (T)inheritableData.Value;
+    }
+
+    public InheritableData GetData()
+    {
+        return new InheritableData
         {
-            Behavior = InheritableBehavior.Enabled
+            Behavior = Behavior,
+            Value = Value
         };
-
-        public InheritableReference(T value)
-        {
-            Value = value;
-        }
-
-        public void SetData(InheritableData inheritableData)
-        {
-            Behavior = inheritableData.Behavior;
-            Value = (T)inheritableData.Value;
-        }
-
-        public InheritableData GetData()
-        {
-            return new InheritableData
-            {
-                Behavior = Behavior,
-                Value = Value
-            };
-        }
     }
 }

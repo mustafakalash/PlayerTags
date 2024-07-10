@@ -1,13 +1,12 @@
-﻿namespace PlayerTags.Inheritables
+﻿namespace PlayerTags.Inheritables;
+
+public interface IInheritable
 {
-    public interface IInheritable
-    {
-        public IInheritable? Parent { get; set; }
+    public IInheritable? Parent { get; set; }
 
-        public InheritableBehavior Behavior { get; set; }
+    public InheritableBehavior Behavior { get; set; }
 
-        public abstract void SetData(InheritableData inheritableData);
+    public abstract void SetData(InheritableData inheritableData);
 
-        public abstract InheritableData GetData();
-    }
+    public abstract InheritableData GetData();
 }

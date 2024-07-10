@@ -1,9 +1,8 @@
-﻿namespace PlayerTags.Data
+﻿namespace PlayerTags.Data;
+
+public enum NameplateElement
 {
-    public enum NameplateElement
-    {
-        Name,
-        Title,
-        FreeCompany
-    }
+    Name,
+    Title,
+    FreeCompany
 }

@@ -1,9 +1,8 @@
-﻿namespace PlayerTags.Data
+﻿namespace PlayerTags.Data;
+
+public enum TagPosition
 {
-    public enum TagPosition
-    {
-        Before,
-        After,
-        Replace
-    }
+    Before,
+    After,
+    Replace
 }

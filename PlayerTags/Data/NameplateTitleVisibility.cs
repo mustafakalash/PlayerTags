@@ -1,13 +1,12 @@
 ﻿using Newtonsoft.Json;
 
-namespace PlayerTags.Data
+namespace PlayerTags.Data;
+
+[JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
+public enum NameplateTitleVisibility
 {
-    [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-    public enum NameplateTitleVisibility
-    {
-        Default,
-        Always,
-        Never,
-        WhenHasTags
-    }
+    Default,
+    Always,
+    Never,
+    WhenHasTags
 }

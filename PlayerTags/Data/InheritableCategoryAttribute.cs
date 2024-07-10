@@ -1,14 +1,13 @@
 ﻿using System;
 
-namespace PlayerTags.Data
-{
-    public class InheritableCategoryAttribute : Attribute
-    {
-        public string CategoryId { get; private set; }
+namespace PlayerTags.Data;
 
-        public InheritableCategoryAttribute(string categoryId)
-        {
-            CategoryId = categoryId;
-        }
+public class InheritableCategoryAttribute : Attribute
+{
+    public string CategoryId { get; private set; }
+
+    public InheritableCategoryAttribute(string categoryId)
+    {
+        CategoryId = categoryId;
     }
 }

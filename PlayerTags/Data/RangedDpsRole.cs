@@ -1,8 +1,7 @@
-﻿namespace PlayerTags.Data
+﻿namespace PlayerTags.Data;
+
+public enum RangedDpsRole
 {
-    public enum RangedDpsRole
-    {
-        Magical,
-        Physical,
-    }
+    Magical,
+    Physical,
 }

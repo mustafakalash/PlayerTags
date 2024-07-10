@@ -1,10 +1,9 @@
-﻿namespace PlayerTags.Data
+﻿namespace PlayerTags.Data;
+
+public enum Role
 {
-    public enum Role
-    {
-        LandHand,
-        Tank,
-        Healer,
-        Dps,
-    }
+    LandHand,
+    Tank,
+    Healer,
+    Dps,
 }

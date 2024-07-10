@@ -1,11 +1,10 @@
 ﻿using Newtonsoft.Json;
 
-namespace PlayerTags.Data
+namespace PlayerTags.Data;
+
+[JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
+public enum NameplateFreeCompanyVisibility
 {
-    [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
-    public enum NameplateFreeCompanyVisibility
-    {
-        Default,
-        Never
-    }
+    Default,
+    Never
 }

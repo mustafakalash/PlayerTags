@@ -1,12 +1,8 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+﻿namespace PlayerTags.Inheritables;
 
-namespace PlayerTags.Inheritables
+public enum InheritableBehavior
 {
-    public enum InheritableBehavior
-    {
-        Inherit,
-        Enabled,
-        Disabled
-    }
+    Inherit,
+    Enabled,
+    Disabled
 }
