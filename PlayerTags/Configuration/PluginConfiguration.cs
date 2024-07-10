@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Pilz.Dalamud.ActivityContexts;
-using Pilz.Dalamud.Nameplates.Tools;
+using Pilz.Dalamud.Tools.NamePlates;
 using PlayerTags.Data;
 using PlayerTags.Inheritables;
 using System;

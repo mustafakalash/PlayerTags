@@ -1,4 +1,5 @@
-﻿using Dalamud.Game.Text;
+﻿using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility;
@@ -6,8 +7,7 @@ using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
 using Pilz.Dalamud.ActivityContexts;
 using Pilz.Dalamud.Icons;
-using Pilz.Dalamud.Nameplates.Model;
-using Pilz.Dalamud.Nameplates.Tools;
+using Pilz.Dalamud.Tools.NamePlates;
 using PlayerTags.Data;
 using PlayerTags.Inheritables;
 using PlayerTags.PluginStrings;
@@ -162,8 +162,8 @@ public class PluginConfigurationUI
                         if (PluginServices.ClientState.LocalPlayer != null)
                         {
                             Dictionary<Identity, PlayerInfo> playerNameContexts = PluginServices.ObjectTable
-                                .Where(gameObject => gameObject is PlayerCharacter)
-                                .Select(gameObject => gameObject as PlayerCharacter)
+                                .Where(gameObject => gameObject is IPlayerCharacter)
+                                .Select(gameObject => gameObject as IPlayerCharacter)
                                 .ToDictionary(
                                     playerCharacter => m_PluginData.GetIdentity(playerCharacter!),
                                     playerCharacter => new PlayerInfo()

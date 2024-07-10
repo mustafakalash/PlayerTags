@@ -1,4 +1,7 @@
-﻿using Dalamud.Game.Text.SeStringHandling.Payloads;
+﻿using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Party;
+using Dalamud.Game.Gui.ContextMenu;
+using Dalamud.Game.Text.SeStringHandling.Payloads;
 using PlayerTags.Configuration;
 using PlayerTags.PluginStrings;
 using System;
@@ -274,23 +277,23 @@ public class PluginData
         };
     }
 
-    public Identity? GetIdentity(GameObjectContextMenuOpenArgs contextMenuOpenedArgs)
+    public Identity? GetIdentity(MenuTargetDefault taget)
     {
-        if (string.IsNullOrEmpty(contextMenuOpenedArgs.Text?.TextValue)
-            || contextMenuOpenedArgs.ObjectWorld == 0
-            || contextMenuOpenedArgs.ObjectWorld == 65535)
+        if (string.IsNullOrEmpty(taget.TargetName)
+            || taget.TargetHomeWorld.Id == 0
+            || taget.TargetHomeWorld.Id == 65535)
         {
             return null;
         }
-        return GetIdentity(contextMenuOpenedArgs.Text?.TextValue ?? string.Empty, contextMenuOpenedArgs.ObjectWorld);
+        return GetIdentity(taget.TargetName, taget.TargetHomeWorld.Id);
     }
 
-    public Identity GetIdentity(PlayerCharacter playerCharacter)
+    public Identity GetIdentity(IPlayerCharacter playerCharacter)
     {
         return GetIdentity(playerCharacter.Name.TextValue, playerCharacter.HomeWorld.Id);
     }
 
-    public Identity GetIdentity(PartyMember partyMember)
+    public Identity GetIdentity(IPartyMember partyMember)
     {
         return GetIdentity(partyMember.Name.TextValue, partyMember.World.Id);
     }

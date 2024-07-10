@@ -27,7 +27,7 @@ public sealed class Plugin : IDalamudPlugin
         PluginServices.Initialize(pluginInterface);
         Pilz.Dalamud.PluginServices.Initialize(pluginInterface);
 
-        pluginConfiguration = PluginConfiguration.LoadPluginConfig() ?? new PluginConfiguration();
+        pluginConfiguration = PluginConfiguration.LoadPluginConfig() ?? new();
         pluginData = new PluginData(pluginConfiguration);
         pluginConfigurationUI = new PluginConfigurationUI(pluginConfiguration, pluginData);
 
@@ -40,7 +40,7 @@ public sealed class Plugin : IDalamudPlugin
         {
             HelpMessage = Resources.Strings.Loc_Command_playertags_v2
         });
-        customTagsContextMenuFeature = new CustomTagsContextMenuFeature(pluginConfiguration, pluginData, pluginInterface);
+        customTagsContextMenuFeature = new CustomTagsContextMenuFeature(pluginConfiguration, pluginData);
         nameplatesTagTargetFeature = new NameplateTagTargetFeature(pluginConfiguration, pluginData);
         chatTagTargetFeature = new ChatTagTargetFeature(pluginConfiguration, pluginData);
     }

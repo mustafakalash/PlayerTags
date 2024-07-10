@@ -4,5 +4,5 @@ public enum NameplateElement
 {
     Name,
     Title,
-    FreeCompany
+    FreeCompany,
 }

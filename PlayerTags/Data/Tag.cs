@@ -149,13 +149,6 @@ public class Tag
     [InheritableCategory("TextCategory")]
     public InheritableValue<bool> IsTextColorAppliedToNameplateFreeCompany = new(false);
 
-    //[InheritableCategory("NameplateCategory")]
-    //public InheritableValue<NameplateFreeCompanyVisibility> NameplateFreeCompanyVisibility = new InheritableValue<NameplateFreeCompanyVisibility>(Data.NameplateFreeCompanyVisibility.Default);
-    //[InheritableCategory("NameplateCategory")]
-    //public InheritableValue<NameplateTitleVisibility> NameplateTitleVisibility = new InheritableValue<NameplateTitleVisibility>(Data.NameplateTitleVisibility.Default);
-    //[InheritableCategory("NameplateCategory")]
-    //public InheritableValue<NameplateTitlePosition> NameplateTitlePosition = new InheritableValue<NameplateTitlePosition>(Data.NameplateTitlePosition.Default);
-
     [InheritableCategory("PositionCategory")]
     public InheritableValue<TagPosition> TagPositionInChat = new(TagPosition.Before);
     [InheritableCategory("PositionCategory")]

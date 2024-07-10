@@ -1,4 +1,4 @@
-﻿using Dalamud.Plugin;
+﻿using Dalamud.Game.Gui.ContextMenu;
 using PlayerTags.Configuration;
 using PlayerTags.Data;
 using PlayerTags.Resources;
@@ -29,33 +29,25 @@ public class CustomTagsContextMenuFeature : FeatureBase, IDisposable
         "SocialList",
     ];
 
-    private DalamudContextMenu? m_ContextMenu;
-
-    public CustomTagsContextMenuFeature(PluginConfiguration pluginConfiguration, PluginData pluginData, IDalamudPluginInterface pluginInterface) : base(pluginConfiguration, pluginData)
+    public CustomTagsContextMenuFeature(PluginConfiguration pluginConfiguration, PluginData pluginData) : base(pluginConfiguration, pluginData)
     {
-        m_ContextMenu = new DalamudContextMenu(pluginInterface);
-        m_ContextMenu.OnOpenGameObjectContextMenu += ContextMenuHooks_ContextMenuOpened;
+        PluginServices.ContextMenu.OnMenuOpened += ContextMenu_OnMenuOpened; ;
     }
 
     public void Dispose()
     {
-        if (m_ContextMenu != null)
-        {
-            m_ContextMenu.OnOpenGameObjectContextMenu -= ContextMenuHooks_ContextMenuOpened;
-            ((IDisposable)m_ContextMenu).Dispose();
-            m_ContextMenu = null;
-        }
+        PluginServices.ContextMenu.OnMenuOpened -= ContextMenu_OnMenuOpened;
     }
 
-    private void ContextMenuHooks_ContextMenuOpened(GameObjectContextMenuOpenArgs contextMenuOpenedArgs)
+    private void ContextMenu_OnMenuOpened(IMenuOpenedArgs args)
     {
         if (!EnableGlobal || !pluginConfiguration.IsCustomTagsContextMenuEnabled
-            || !supportedAddonNames.Contains(contextMenuOpenedArgs.ParentAddonName))
-        {
+            || args.MenuType != ContextMenuType.Default
+            || args.Target is not MenuTargetDefault menuTarget
+            || !supportedAddonNames.Contains(args.AddonName))
             return;
-        }
 
-        Identity? identity = pluginData.GetIdentity(contextMenuOpenedArgs);
+        Identity? identity = pluginData.GetIdentity(menuTarget);
         if (identity != null)
         {
             var allTags = new Dictionary<Tag, bool>();
@@ -75,18 +67,20 @@ public class CustomTagsContextMenuFeature : FeatureBase, IDisposable
                     menuItemText = Strings.Loc_Static_ContextMenu_AddTag;
                 menuItemText = string.Format(menuItemText, tag.Key.Text.Value);
 
-                contextMenuOpenedArgs.AddCustomItem(
-                    new GameObjectContextMenuItem(menuItemText, openedEventArgs =>
+                args.AddMenuItem(new()
+                {
+                    IsSubmenu = false,
+                    IsEnabled = true,
+                    Name = menuItemText,
+                    OnClicked = openedEventArgs =>
                     {
                         if (tag.Value)
                             pluginData.RemoveCustomTagFromIdentity(tag.Key, identity);
                         else
                             pluginData.AddCustomTagToIdentity(tag.Key, identity);
                         pluginConfiguration.Save(pluginData);
-                    })
-                    {
-                        IsSubMenu = false
-                    });
+                    },
+                });
             }
         }
     }

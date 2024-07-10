@@ -1,40 +1,36 @@
-﻿using Dalamud.Game.Text.SeStringHandling;
+﻿using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Objects.Types;
+using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Pilz.Dalamud.ActivityContexts;
 using Pilz.Dalamud.Tools.Strings;
 using PlayerTags.Configuration;
 using PlayerTags.Configuration.GameConfig;
 using PlayerTags.Data;
-using PlayerTags.Inheritables;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using GameObject = Dalamud.Game.ClientState.Objects.Types.GameObject;
 
 namespace PlayerTags.Features;
 
 /// <summary>
 /// The base of a feature that adds tags to UI elements.
 /// </summary>
-public abstract class TagTargetFeature : FeatureBase, IDisposable
+public abstract class TagTargetFeature(PluginConfiguration pluginConfiguration, PluginData pluginData) : FeatureBase(pluginConfiguration, pluginData), IDisposable
 {
-    public ActivityContextManager ActivityContextManager { get; init; }
-
-    protected TagTargetFeature(PluginConfiguration pluginConfiguration, PluginData pluginData) : base(pluginConfiguration, pluginData)
-    {
-        ActivityContextManager = new();
-    }
+    public ActivityContextManager ActivityContextManager { get; init; } = new();
 
     public virtual void Dispose()
     {
         ActivityContextManager.Dispose();
+        GC.SuppressFinalize(this);
     }
 
     protected abstract bool IsIconVisible(Tag tag);
 
     protected abstract bool IsTextVisible(Tag tag);
 
-    protected bool IsTagVisible(Tag tag, GameObject? gameObject)
+    protected bool IsTagVisible(Tag tag, IGameObject? gameObject)
     {
         bool isVisibleForActivity = ActivityContextHelper.GetIsVisible(ActivityContextManager.CurrentActivityContext.ActivityType,
             tag.IsVisibleInPveDuties.InheritedValue ?? false,
@@ -42,11 +38,9 @@ public abstract class TagTargetFeature : FeatureBase, IDisposable
             tag.IsVisibleInOverworld.InheritedValue ?? false);
 
         if (!isVisibleForActivity)
-        {
             return false;
-        }
 
-        if (gameObject is PlayerCharacter playerCharacter)
+        if (gameObject is IPlayerCharacter playerCharacter)
         {
             bool isVisibleForPlayer = PlayerContextHelper.GetIsVisible(playerCharacter,
                 tag.IsVisibleForSelf.InheritedValue ?? false,
@@ -57,9 +51,7 @@ public abstract class TagTargetFeature : FeatureBase, IDisposable
                 tag.IsVisibleForOtherPlayers.InheritedValue ?? false);
 
             if (!isVisibleForPlayer)
-            {
                 return false;
-            }
         }
 
         return true;
@@ -71,13 +63,10 @@ public abstract class TagTargetFeature : FeatureBase, IDisposable
     /// <param name="gameObject">The game object to get payloads for.</param>
     /// <param name="tag">The tag config to get payloads for.</param>
     /// <returns>A list of payloads for the given tag.</returns>
-    protected Payload[] GetPayloads(Tag tag, GameObject? gameObject)
+    protected Payload[] GetPayloads(Tag tag, IGameObject? playerCharacter)
     {
-        if (!IsTagVisible(tag, gameObject))
-        {
-            return Array.Empty<Payload>();
-        }
-
+        if (!IsTagVisible(tag, playerCharacter))
+            return [];
         return CreatePayloads(tag);
     }
 
@@ -89,60 +78,42 @@ public abstract class TagTargetFeature : FeatureBase, IDisposable
     private Payload[] CreatePayloads(Tag tag)
     {
         List<Payload> newPayloads = [];
-
         BitmapFontIcon? icon = null;
+        string? text = null;
+
         if (IsIconVisible(tag))
-        {
             icon = tag.Icon.InheritedValue;
-        }
 
         if (icon != null && icon.Value != BitmapFontIcon.None)
-        {
             newPayloads.Add(new IconPayload(icon.Value));
-        }
 
-        string? text = null;
         if (IsTextVisible(tag))
-        {
             text = tag.Text.InheritedValue;
-        }
 
         if (!string.IsNullOrWhiteSpace(text))
         {
             if (tag.IsTextItalic.InheritedValue != null && tag.IsTextItalic.InheritedValue.Value)
-            {
                 newPayloads.Add(new EmphasisItalicPayload(true));
-            }
 
             if (tag.TextGlowColor.InheritedValue != null)
-            {
                 newPayloads.Add(new UIGlowPayload(tag.TextGlowColor.InheritedValue.Value));
-            }
 
             if (tag.TextColor.InheritedValue != null)
-            {
                 newPayloads.Add(new UIForegroundPayload(tag.TextColor.InheritedValue.Value));
-            }
 
             newPayloads.Add(new TextPayload(text));
 
             if (tag.TextColor.InheritedValue != null)
-            {
                 newPayloads.Add(new UIForegroundPayload(0));
-            }
 
             if (tag.TextGlowColor.InheritedValue != null)
-            {
                 newPayloads.Add(new UIGlowPayload(0));
-            }
 
             if (tag.IsTextItalic.InheritedValue != null && tag.IsTextItalic.InheritedValue.Value)
-            {
                 newPayloads.Add(new EmphasisItalicPayload(false));
-            }
         }
 
-        return newPayloads.ToArray();
+        return [.. newPayloads];
     }
 
     protected static string BuildPlayername(string name)
@@ -196,93 +167,6 @@ public abstract class TagTargetFeature : FeatureBase, IDisposable
             var changes = stringChanges.GetChange(tagPosition);
             changes.Payloads.AddRange(payloads);
             changes.ForceUsingSingleAnchorPayload = forceUsingSingleAnchorPayload;
-        }
-    }
-
-    /// <summary>
-    /// Applies changes to the given string.
-    /// </summary>
-    /// <param name="seString">The string to apply changes to.</param>
-    /// <param name="stringChanges">The changes to apply.</param>
-    /// <param name="anchorPayload">The payload in the string that changes should be anchored to. If there is no anchor, the changes will be applied to the entire string.</param>
-    protected void ApplyStringChanges(SeString seString, StringChanges stringChanges, List<Payload> anchorPayloads = null, Payload anchorReplacePayload = null)
-    {
-        var props = new StringChangesProps
-        {
-            Destination = seString,
-            AnchorPayload = anchorReplacePayload,
-            AnchorPayloads = anchorPayloads,
-            StringChanges = stringChanges
-        };
-
-        StringUpdateFactory.ApplyStringChanges(props);
-    }
-
-    protected void ApplyTextFormatting(GameObject gameObject, Tag tag, SeString[] destStrings, InheritableValue<bool>[] textColorApplied, List<Payload> preferedPayloads, ushort? overwriteTextColor = null)
-    {
-        if (IsTagVisible(tag, gameObject))
-        {
-            for (int i = 0; i < destStrings.Length; i++)
-            {
-                var destString = destStrings[i];
-                var isTextColorApplied = textColorApplied[i];
-                applyTextColor(destString, isTextColorApplied, tag.TextColor);
-                //applyTextGlowColor(destString, isTextColorApplied, tag.TextGlowColor);
-                //applyTextItalicColor(destString, tag.IsTextItalic); // Disabled, because that is needed only for a few parts somewhere else.
-            }
-        }
-
-        void applyTextColor(SeString destPayload, InheritableValue<bool> enableFlag, InheritableValue<ushort> colorValue)
-        {
-            var colorToUse = overwriteTextColor ?? colorValue?.InheritedValue;
-            if (shouldApplyFormattingPayloads(destPayload)
-                        && enableFlag.InheritedValue != null
-                        && enableFlag.InheritedValue.Value
-                        && colorToUse != null)
-                applyTextFormattingPayloads(destPayload, new UIForegroundPayload(colorToUse.Value), new UIForegroundPayload(0));
-        }
-
-        //void applyTextGlowColor(SeString destPayload, InheritableValue<bool> enableFlag, InheritableValue<ushort> colorValue)
-        //{
-        //    if (shouldApplyFormattingPayloads(destPayload)
-        //                && enableFlag.InheritedValue != null
-        //                && enableFlag.InheritedValue.Value
-        //                && colorValue.InheritedValue != null)
-        //        applyTextFormattingPayloads(destPayload, new UIGlowPayload(colorValue.InheritedValue.Value), new UIGlowPayload(0));
-        //}
-
-        //void applyTextItalicColor(SeString destPayload, InheritableValue<bool> italicValue)
-        //{
-        //    if (shouldApplyFormattingPayloads(destPayload)
-        //                && italicValue.InheritedValue != null
-        //                && italicValue.InheritedValue.Value)
-        //        applyTextFormattingPayloads(destPayload, new EmphasisItalicPayload(true), new EmphasisItalicPayload(false));
-        //}
-
-        bool shouldApplyFormattingPayloads(SeString destPayload)
-            => destPayload.Payloads.Any(payload => payload is TextPayload || payload is PlayerPayload);
-
-        void applyTextFormattingPayloads(SeString destPayload, Payload startPayload, Payload endPayload)
-        {
-            if (preferedPayloads == null || !preferedPayloads.Any())
-                applyTextFormattingPayloadToStartAndEnd(destPayload, startPayload, endPayload);
-            else
-                applyTextFormattingPayloadsToSpecificPosition(destPayload, startPayload, endPayload, preferedPayloads);
-        }
-
-        void applyTextFormattingPayloadToStartAndEnd(SeString destPayload, Payload startPayload, Payload endPayload)
-        {
-            destPayload.Payloads.Insert(0, startPayload);
-            destPayload.Payloads.Add(endPayload);
-        }
-
-        void applyTextFormattingPayloadsToSpecificPosition(SeString destPayload, Payload startPayload, Payload endPayload, List<Payload> preferedPayload)
-        {
-            int payloadStartIndex = destPayload.Payloads.IndexOf(preferedPayloads.First());
-            destPayload.Payloads.Insert(payloadStartIndex, startPayload);
-
-            int payloadEndIndex = destPayload.Payloads.IndexOf(preferedPayloads.Last());
-            destPayload.Payloads.Insert(payloadEndIndex + 1, endPayload);
         }
     }
 }

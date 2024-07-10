@@ -1,9 +1,12 @@
-﻿using Dalamud.Game.Text;
+﻿using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Objects.Types;
+using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Pilz.Dalamud.Tools.Strings;
 using PlayerTags.Configuration;
 using PlayerTags.Data;
+using PlayerTags.Inheritables;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,19 +21,19 @@ public class ChatTagTargetFeature : TagTargetFeature
     /// <summary>
     /// A match found within a string.
     /// </summary>
-    private class StringMatch
+    private class StringMatch(SeString seString)
     {
         /// <summary>
         /// The string that the match was found in.
         /// </summary>
-        public SeString SeString { get; init; }
+        public SeString SeString { get; init; } = seString;
 
         public List<Payload> DisplayTextPayloads { get; init; } = [];
 
         /// <summary>
         /// The matching game object if one exists
         /// </summary>
-        public GameObject? GameObject { get; init; }
+        public IGameObject? GameObject { get; init; }
 
         /// <summary>
         /// A matching player payload if one exists.
@@ -57,15 +60,7 @@ public class ChatTagTargetFeature : TagTargetFeature
 
         public bool IsLocalPlayer
         {
-            get
-            {
-                return GetMatchTextInternal() == PluginServices.ClientState.LocalPlayer.Name.TextValue;
-            }
-        }
-
-        public StringMatch(SeString seString)
-        {
-            SeString = seString;
+            get => GetMatchTextInternal() == PluginServices.ClientState.LocalPlayer.Name.TextValue;
         }
 
         private string GetMatchTextInternal()
@@ -96,16 +91,17 @@ public class ChatTagTargetFeature : TagTargetFeature
 
     public ChatTagTargetFeature(PluginConfiguration pluginConfiguration, PluginData pluginData) : base(pluginConfiguration, pluginData)
     {
-        PluginServices.ChatGui.ChatMessage += Chat_ChatMessage;
+        PluginServices.ChatGui.ChatMessage += ChatGui_ChatMessage;
     }
 
     public override void Dispose()
     {
-        PluginServices.ChatGui.ChatMessage -= Chat_ChatMessage;
+        PluginServices.ChatGui.ChatMessage -= ChatGui_ChatMessage;
         base.Dispose();
+        GC.SuppressFinalize(this);
     }
 
-    private void Chat_ChatMessage(XivChatType type, uint senderId, ref SeString sender, ref SeString message, ref bool isHandled)
+    private void ChatGui_ChatMessage(XivChatType type, int timestamp, ref SeString sender, ref SeString message, ref bool isHandled)
     {
         if (EnableGlobal && pluginConfiguration.GeneralOptions[ActivityContextManager.CurrentActivityContext.ActivityType].IsApplyTagsToAllChatMessagesEnabled)
         {
@@ -117,10 +113,7 @@ public class ChatTagTargetFeature : TagTargetFeature
     protected override bool IsIconVisible(Tag tag)
     {
         if (tag.IsRoleIconVisibleInChat.InheritedValue != null)
-        {
             return tag.IsRoleIconVisibleInChat.InheritedValue.Value;
-        }
-
         return false;
     }
 
@@ -330,14 +323,14 @@ public class ChatTagTargetFeature : TagTargetFeature
                 => tag.TagPositionInChat.InheritedValue != null && tag.TargetChatTypes.InheritedValue != null &&
                 (tag.TargetChatTypes.InheritedValue.Contains(chatType) || (!Enum.IsDefined(chatType) && (tag.TargetChatTypesIncludeUndefined?.InheritedValue ?? false)));
 
-            if (stringMatch.GameObject is PlayerCharacter playerCharacter)
+            if (stringMatch.GameObject is IPlayerCharacter playerCharacter)
             {
                 // Add the job tag
                 if (playerCharacter.ClassJob.GameData != null && pluginData.JobTags.TryGetValue(playerCharacter.ClassJob.GameData.Abbreviation, out var jobTag))
                 {
                     if (isTagEnabled(jobTag))
                     {
-                        var payloads = GetPayloads(jobTag, stringMatch.GameObject);
+                        var payloads = GetPayloads(jobTag, playerCharacter);
                         if (payloads.Any())
                         {
                             var insertBehindNumberPrefix = jobTag.InsertBehindNumberPrefixInChat?.Value ?? true;
@@ -395,7 +388,7 @@ public class ChatTagTargetFeature : TagTargetFeature
             {
                 Identity identity = pluginData.GetIdentity(stringMatch.PlayerPayload);
 
-                if (stringMatch.GameObject is PlayerCharacter playerCharacter1)
+                if (stringMatch.GameObject is IPlayerCharacter playerCharacter1)
                 {
                     if (playerCharacter1.ClassJob.GameData != null && pluginData.JobTags.TryGetValue(playerCharacter1.ClassJob.GameData.Abbreviation, out var jobTag) && isTagEnabled(jobTag))
                         applyTextFormatting(jobTag);
@@ -424,5 +417,73 @@ public class ChatTagTargetFeature : TagTargetFeature
                     message.Remove(stringMatch.LinkTerminatorPayload);
             }
         }
+    }
+
+    private void ApplyTextFormatting(IGameObject? gameObject, Tag tag, SeString[] destStrings, InheritableValue<bool>[] textColorApplied, List<Payload> preferedPayloads, ushort? overwriteTextColor = null)
+    {
+        if (IsTagVisible(tag, gameObject))
+        {
+            for (int i = 0; i < destStrings.Length; i++)
+            {
+                var destString = destStrings[i];
+                var isTextColorApplied = textColorApplied[i];
+                applyTextColor(destString, isTextColorApplied, tag.TextColor);
+            }
+        }
+
+        void applyTextColor(SeString destPayload, InheritableValue<bool> enableFlag, InheritableValue<ushort> colorValue)
+        {
+            var colorToUse = overwriteTextColor ?? colorValue?.InheritedValue;
+            if (shouldApplyFormattingPayloads(destPayload)
+                        && enableFlag.InheritedValue != null
+                        && enableFlag.InheritedValue.Value
+                        && colorToUse != null)
+                applyTextFormattingPayloads(destPayload, new UIForegroundPayload(colorToUse.Value), new UIForegroundPayload(0));
+        }
+
+        bool shouldApplyFormattingPayloads(SeString destPayload)
+            => destPayload.Payloads.Any(payload => payload is TextPayload || payload is PlayerPayload);
+
+        void applyTextFormattingPayloads(SeString destPayload, Payload startPayload, Payload endPayload)
+        {
+            if (preferedPayloads == null || !preferedPayloads.Any())
+                applyTextFormattingPayloadToStartAndEnd(destPayload, startPayload, endPayload);
+            else
+                applyTextFormattingPayloadsToSpecificPosition(destPayload, startPayload, endPayload, preferedPayloads);
+        }
+
+        void applyTextFormattingPayloadToStartAndEnd(SeString destPayload, Payload startPayload, Payload endPayload)
+        {
+            destPayload.Payloads.Insert(0, startPayload);
+            destPayload.Payloads.Add(endPayload);
+        }
+
+        void applyTextFormattingPayloadsToSpecificPosition(SeString destPayload, Payload startPayload, Payload endPayload, List<Payload> preferedPayload)
+        {
+            int payloadStartIndex = destPayload.Payloads.IndexOf(preferedPayloads.First());
+            destPayload.Payloads.Insert(payloadStartIndex, startPayload);
+
+            int payloadEndIndex = destPayload.Payloads.IndexOf(preferedPayloads.Last());
+            destPayload.Payloads.Insert(payloadEndIndex + 1, endPayload);
+        }
+    }
+
+    /// <summary>
+    /// Applies changes to the given string.
+    /// </summary>
+    /// <param name="seString">The string to apply changes to.</param>
+    /// <param name="stringChanges">The changes to apply.</param>
+    /// <param name="anchorPayload">The payload in the string that changes should be anchored to. If there is no anchor, the changes will be applied to the entire string.</param>
+    protected void ApplyStringChanges(SeString seString, StringChanges stringChanges, List<Payload> anchorPayloads = null, Payload anchorReplacePayload = null)
+    {
+        var props = new StringChangesProps
+        {
+            Destination = seString,
+            AnchorPayload = anchorReplacePayload,
+            AnchorPayloads = anchorPayloads,
+            StringChanges = stringChanges
+        };
+
+        StringUpdateFactory.ApplyStringChanges(props);
     }
 }
