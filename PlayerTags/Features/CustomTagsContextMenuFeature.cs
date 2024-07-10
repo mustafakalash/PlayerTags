@@ -34,7 +34,7 @@ namespace PlayerTags.Features
 
         private DalamudContextMenu? m_ContextMenu;
 
-        public CustomTagsContextMenuFeature(PluginConfiguration pluginConfiguration, PluginData pluginData, DalamudPluginInterface pluginInterface) : base(pluginConfiguration, pluginData)
+        public CustomTagsContextMenuFeature(PluginConfiguration pluginConfiguration, PluginData pluginData, IDalamudPluginInterface pluginInterface) : base(pluginConfiguration, pluginData)
         {
             m_ContextMenu = new DalamudContextMenu(pluginInterface);
             m_ContextMenu.OnOpenGameObjectContextMenu += ContextMenuHooks_ContextMenuOpened;

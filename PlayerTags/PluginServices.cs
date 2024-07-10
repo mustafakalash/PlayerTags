@@ -13,7 +13,7 @@ namespace PlayerTags
 {
     public class PluginServices
     {
-        [PluginService] public static DalamudPluginInterface DalamudPluginInterface { get; set; } = null!;
+        [PluginService] public static IDalamudPluginInterface DalamudPluginInterface { get; set; } = null!;
         [PluginService] public static IPluginLog PluginLog { get; set; } = null;
         [PluginService] public static IGameConfig GameConfig { get; set; } = null;
         [PluginService] public static IChatGui ChatGui { get; set; } = null!;
@@ -26,7 +26,7 @@ namespace PlayerTags
         [PluginService] public static IPartyList PartyList { get; set; } = null!;
         [PluginService] public static IGameInteropProvider GameInteropProvider { get; set; } = null;
 
-        public static void Initialize(DalamudPluginInterface pluginInterface)
+        public static void Initialize(IDalamudPluginInterface pluginInterface)
         {
             pluginInterface.Create<PluginServices>();
         }

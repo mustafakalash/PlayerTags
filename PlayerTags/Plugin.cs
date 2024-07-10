@@ -31,7 +31,7 @@ namespace PlayerTags
         private readonly NameplateTagTargetFeature nameplatesTagTargetFeature;
         private readonly ChatTagTargetFeature chatTagTargetFeature;
 
-        public Plugin(DalamudPluginInterface pluginInterface)
+        public Plugin(IDalamudPluginInterface pluginInterface)
         {
             PluginServices.Initialize(pluginInterface);
             Pilz.Dalamud.PluginServices.Initialize(pluginInterface);
