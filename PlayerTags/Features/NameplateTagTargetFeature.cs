@@ -55,6 +55,10 @@ public class NameplateTagTargetFeature : TagTargetFeature
 
         foreach (var handler in handlers)
         {
+            // Only handle player nameplates
+            if (handler.NamePlateKind != NamePlateKind.PlayerCharacter || handler.PlayerCharacter == null)
+                continue;
+
             var beforeTitleBytes = handler.InfoView.Title.Encode();
             var generalOptions = pluginConfiguration.GeneralOptions[ActivityContextManager.CurrentActivityContext.ActivityType];
 
