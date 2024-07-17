@@ -1,6 +1,7 @@
 ﻿using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
+using Pilz.Dalamud.NamePlate;
 
 namespace PlayerTags;
 
@@ -19,7 +20,7 @@ public class PluginServices
     [PluginService] public static IPartyList PartyList { get; set; }
     [PluginService] public static IGameInteropProvider GameInteropProvider { get; set; }
     [PluginService] public static IContextMenu ContextMenu { get; set; }
-    [PluginService] public static INamePlateGui NamePlateGui { get; set; }
+    [PluginService] public static INamePlateGui NamePlateGui => INamePlateGui.Instance;
 
     public static void Initialize(IDalamudPluginInterface pluginInterface)
     {

@@ -1,8 +1,8 @@
 ﻿using Dalamud.Game.ClientState.Objects.SubKinds;
-using Dalamud.Game.Gui.NamePlate;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Pilz.Dalamud.Icons;
+using Pilz.Dalamud.NamePlate;
 using Pilz.Dalamud.Tools.NamePlates;
 using Pilz.Dalamud.Tools.Strings;
 using PlayerTags.Configuration;
