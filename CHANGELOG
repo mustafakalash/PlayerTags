@@ -1,0 +1,219 @@
+# Upcomming Versions
+
+## More / Backlog
+
+See here for all open issues on GitHub: <https://git.pilzinsel64.de/pilzinsel64/playertags/-/issues/?sort=created_date&state=opened&label_name%5B%5D=enhancement>
+
+---
+
+## Version 1.11
+
+* Target to API 10
+* Target to .NET 8
+* Reworked nameplate tag feature
+
+# Published Versions
+
+## Version 1.10
+
+* Target to API 9
+* Updated translations
+
+## Version 1.9
+
+*Released on 13th January 2021*
+
+* Target to API 8
+* Target to .NET 7
+* Updated translations
+
+## Version 1.8.4
+
+*Released on 20th December 2022*
+
+* A few High-DPI fixes
+
+## Version 1.8.3.1
+
+*Released on 11th December 2022*
+
+* Updated translations
+
+## Version 1.8.3
+
+*Released on 8th December 2022*
+
+* Tag: Added option to also include undefined Chat Types
+
+## Version 1.8.2
+
+*Released on 29th November 2022*
+
+* Updated translation files
+
+## Version 1.8.1
+
+*Released on 23th November 2022*
+
+* Fixed option `Target Chat Type` not working
+* Updated translation files
+
+## Version 1.8
+
+*Released on 20th November 2022*
+
+### Tags
+
+* Added Job Icons 
+  * Choose what icon set you want to use
+  * This is the first version of it, like you may know from Party Icons, that replaces the status icon.
+  * By default there are some settings for priorizing status icons over job icons (you can edit them in the settings)
+  * The plan for the future is to extend that feature and implement the ability to add a second icon beside the status icon.
+* Added Tag configuration templates
+* Choose for what chat type the Tag should applied to
+
+### General
+
+* Gray out or completely ignore Tags for dead players
+
+### Other
+
+* A lot minor adjustments and fixes, i don't remember yet
+
+### Under the Hodd
+
+* Use new config file at `\pluginConfig\Player Tags\Config.json` (with auto migration)
+* Move a lot of code more standardised to a library (available on GitHub)
+
+## Version 1.7.5
+
+*Released on 25th September 2022*
+
+* Chat: Support group number prefix for Custom Tags
+* Chat: Make Custom Tags color prio if used for whole name
+
+## Version 1.7.4
+
+*Released on 22th September 2022*
+
+* Minor adjustments that sometimes cause weird behavior for the chat feature, like... 
+  * The own username has been added to the start of the message text and not within
+  * The message get colored completely and not only the name
+  * Messages by ExtraChat looked weird sometimes
+
+## Version 1.7.3
+
+*Released on 20th September 2022*
+
+* Optimize handling with abbreviated names in group and alliance chat
+
+## Version 1.7.2
+
+*Released on 19th September 2022*
+
+* Show your own name abbreviated in Chat, if abbreviated is setted up in character config  
+  *\--> The game does abbreviate your own character name AFTER Dalamuds chat handler and only if it is unchanged. So PlayerTags need to abbreviate the name itself.*
+
+## Version 1.7.1
+
+*Released on 18th September 2022*
+
+* Updated translation files
+
+## Version 1.7.0
+
+*Released on 17th September 2022*
+
+* Improved handling of own character name in chat
+* Improved handling of group/alliance number prefix (always insert tag and icon behind)
+* Added new property for Tags to choose if the tag and icon should be inserted before or behind the group/alliance number prefix
+* Marked the Chat features as stable
+* Removed option `Link Self In Chat`  
+  *\--> It's now a part of the Chat feature itself*
+
+## Version 1.6.6
+
+*Released on 16th September 2022*
+
+* Improved self linking in chat feature 
+  * Improves compatiblity with ChatTwo
+  * Technical Stuff: Use PlayerPayload only as index, remove it before going back to the game and keep the TextPayload
+* Renamed plugin to `PlayerTags` (remove white space between the two words)
+* Use SignatureHelper for Hooks
+
+## Version 1.6.5
+
+*Released on 12th September 2022*
+
+* Use UI Culture of Dalamud for Localization
+
+## Version 1.6.4
+
+*Released on 12th September 2022*
+
+* Fixed removing everything except your name when 'Self Linking in Chat' is enabled and the message in the chat contains your own player na3
+
+## Version 1.6.3
+
+*Released on 4th September 2022*
+
+* Update spanish translation to include string for v1.6 (thank you!)
+* Revert default setting for coloring nameplate title as it was in v1.5 (you may need to re-apply that option)
+
+## Version 1.6.2
+
+*Released on 3th September 2022*
+
+* Enable tag coloring again
+
+## Version 1.6.1
+
+*Released on 3th September 2022*
+
+* Adjust some default settings regarding text coloring ([\#10](https://github.com/Pilzinsel64/PlayerTags/issues/10))
+
+  ::: info
+  If you miss some colors on nameplate and chat now, please ensure you enabled them for the respective element. There are a lot of options and the default options will not be fine for everyone. Just adjust them, if you like yours more. ^^
+
+  :::
+
+## Version 1.6
+
+*Released on 3th September 2022*
+
+* Optimized some code for text formatting to probably fix issues with other plugins, such as Simple Tweaks
+* Added a new option to specify where some general settings depending on the current activity (in duty, no duty). E.g. visible in chat, nameplate title options, etc.
+* Added Spanish translation (thanks to unknown!) (before added the new strings in v1.6)
+
+## Version 1.5
+
+*Released on 24th August 2022*
+
+* Target .NET 6
+* Target API 7
+* Updated libs
+
+## Version 1.4
+
+*Released on 14th July 2022*
+
+* Added German translation
+* Increased default window size when opening settings for the first time
+* Fixed Random Player Name Generator
+* Minor code improvements
+
+## Version 1.3
+
+*Released on 29th June 2022*
+
+* Reimplemented the Context Menu feature
+* Polished up some code for Context Menu feature
+
+## Version 1.2
+
+*Never has been published, but changes included in v1.3!*
+
+* Target API 6
+* Disabled context menus for now  
+  (*will be re-added soon with a future update)*
+* Minor improvements
