@@ -2,12 +2,23 @@
 
 Lightweight job visibility in nameplates and chat. Create custom tags and add them to players with the context menu.
 
-# Contribution
+## Install
+
+### Via official plugin repo
+
+This plugin is available via the official plugin repository of Dalamud. Just search for "Player Tags" and install.
+
+### Via third party repo
+
+For the case you want instant updates, feel free to add my third party repo for this plugin:\
+`https://git.pilzinsel64.de/pilzinsel64/playertags/-/snippets/5/raw/main/pluginmaster.json`
+
+## Contribution
 
 You want to help and contribute to this project? \
 Feel free to open a pull request with your enhancements or bug fixes!
 
-# Translation
+## Translation
 
 You want to help and translate this plugin to your/other language(s)? \
 Start translation [here on Crowdin](https://crowdin.com/project/playertags)!
@@ -24,6 +35,6 @@ If you want to contribute to a language that isn't listed, just tell me with an 
 | Chinese | Andypsl8, yqdyqd
 | ... | You?
 
-# Credits
+## Credits
 
 This plugin was originally developed by [r00telement](https://github.com/r00telement) but forked and continued by [Pilzinsel64](https://github.com/Pilzinsel64).
