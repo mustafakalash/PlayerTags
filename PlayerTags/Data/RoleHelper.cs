@@ -1,4 +1,5 @@
-﻿using Lumina.Excel.GeneratedSheets;
+﻿using Lumina.Excel.Sheets;
+using Pilz.Dalamud;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -39,11 +40,11 @@ public static class RoleHelper
                 var classJobs = PluginServices.DataManager.GetExcelSheet<ClassJob>();
                 if (classJobs != null)
                 {
-                    foreach (var classJob in classJobs.Where(classJob => !string.IsNullOrEmpty(classJob.Abbreviation.RawString)))
+                    foreach (var classJob in classJobs.Where(classJob => !string.IsNullOrEmpty(classJob.Abbreviation.ParseString())))
                     {
                         if (RolesByRoleId.TryGetValue(classJob.Role, out var role))
                         {
-                            s_RolesByJobAbbreviation[classJob.Abbreviation] = role;
+                            s_RolesByJobAbbreviation[classJob.Abbreviation.ParseString()] = role;
                         }
                     }
                 }
@@ -65,11 +66,11 @@ public static class RoleHelper
                 var classJobs = PluginServices.DataManager.GetExcelSheet<ClassJob>();
                 if (classJobs != null)
                 {
-                    foreach (var classJob in classJobs.Where(classJob => !string.IsNullOrEmpty(classJob.Abbreviation.RawString)))
+                    foreach (var classJob in classJobs.Where(classJob => !string.IsNullOrEmpty(classJob.Abbreviation.ParseString())))
                     {
                         if (DpsRolesByRoleId.TryGetValue(classJob.Role, out var dpsRole))
                         {
-                            s_DpsRolesByJobAbbreviation[classJob.Abbreviation] = dpsRole;
+                            s_DpsRolesByJobAbbreviation[classJob.Abbreviation.ParseString()] = dpsRole;
                         }
                     }
                 }
@@ -91,13 +92,13 @@ public static class RoleHelper
                 var classJobs = PluginServices.DataManager.GetExcelSheet<ClassJob>();
                 if (classJobs != null)
                 {
-                    foreach (var classJob in classJobs.Where(classJob => !string.IsNullOrEmpty(classJob.Abbreviation.RawString)))
+                    foreach (var classJob in classJobs.Where(classJob => !string.IsNullOrEmpty(classJob.Abbreviation.ParseString())))
                     {
-                        if (DpsRolesByJobAbbreviation.TryGetValue(classJob.Abbreviation, out var dpsRole) && dpsRole == DpsRole.Ranged)
+                        if (DpsRolesByJobAbbreviation.TryGetValue(classJob.Abbreviation.ParseString(), out var dpsRole) && dpsRole == DpsRole.Ranged)
                         {
                             if (RangedDpsRolesByPrimaryStat.TryGetValue(classJob.PrimaryStat, out var rangedDPSRole))
                             {
-                                s_RangedDpsRolesByJobAbbreviation[classJob.Abbreviation] = rangedDPSRole;
+                                s_RangedDpsRolesByJobAbbreviation[classJob.Abbreviation.ParseString()] = rangedDPSRole;
                             }
                         }
                     }
@@ -123,10 +124,9 @@ public static class RoleHelper
                 {
                     var gatheringJobAbbreviations = gatheringSubCategories
                         .Select(gatheringSubCategory => gatheringSubCategory.ClassJob.Value)
-                        .Where(classJob => classJob != null)
                         .Select(classJob => classJob!.Abbreviation).Distinct();
 
-                    foreach (var classJob in classJobs.Where(classJob => !string.IsNullOrEmpty(classJob.Abbreviation.RawString)))
+                    foreach (var classJob in classJobs.Where(classJob => !string.IsNullOrEmpty(classJob.Abbreviation.ParseString())))
                     {
                         if (RolesByRoleId.TryGetValue(classJob.Role, out var role))
                         {
@@ -134,11 +134,11 @@ public static class RoleHelper
                             {
                                 if (gatheringJobAbbreviations.Contains(classJob.Abbreviation))
                                 {
-                                    s_LandHandRolesByJobAbbreviation[classJob.Abbreviation] = LandHandRole.Land;
+                                    s_LandHandRolesByJobAbbreviation[classJob.Abbreviation.ParseString()] = LandHandRole.Land;
                                 }
                                 else
                                 {
-                                    s_LandHandRolesByJobAbbreviation[classJob.Abbreviation] = LandHandRole.Hand;
+                                    s_LandHandRolesByJobAbbreviation[classJob.Abbreviation.ParseString()] = LandHandRole.Hand;
                                 }
                             }
                         }

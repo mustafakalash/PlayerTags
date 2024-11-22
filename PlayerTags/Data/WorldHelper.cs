@@ -1,4 +1,5 @@
-﻿using Lumina.Excel.GeneratedSheets;
+﻿using Lumina.Excel.Sheets;
+using Pilz.Dalamud;
 using System.Collections.Generic;
 
 namespace PlayerTags.Data;
@@ -19,7 +20,7 @@ public static class WorldHelper
                 {
                     foreach (var world in worlds)
                     {
-                        s_WorldNames[world.RowId] = world.Name;
+                        s_WorldNames[world.RowId] = world.Name.ParseString();
                     }
                 }
             }

@@ -280,22 +280,22 @@ public class PluginData
     public Identity? GetIdentity(MenuTargetDefault taget)
     {
         if (string.IsNullOrEmpty(taget.TargetName)
-            || taget.TargetHomeWorld.Id == 0
-            || taget.TargetHomeWorld.Id == 65535)
+            || taget.TargetHomeWorld.RowId == 0
+            || taget.TargetHomeWorld.RowId == 65535)
         {
             return null;
         }
-        return GetIdentity(taget.TargetName, taget.TargetHomeWorld.Id);
+        return GetIdentity(taget.TargetName, taget.TargetHomeWorld.RowId);
     }
 
     public Identity GetIdentity(IPlayerCharacter playerCharacter)
     {
-        return GetIdentity(playerCharacter.Name.TextValue, playerCharacter.HomeWorld.Id);
+        return GetIdentity(playerCharacter.Name.TextValue, playerCharacter.HomeWorld.RowId);
     }
 
     public Identity GetIdentity(IPartyMember partyMember)
     {
-        return GetIdentity(partyMember.Name.TextValue, partyMember.World.Id);
+        return GetIdentity(partyMember.Name.TextValue, partyMember.World.RowId);
     }
 
     public Identity GetIdentity(PlayerPayload playerPayload)

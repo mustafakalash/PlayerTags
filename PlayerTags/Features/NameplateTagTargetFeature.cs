@@ -2,6 +2,8 @@
 using Dalamud.Game.Gui.NamePlate;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
+using Lumina.Excel.Sheets;
+using Pilz.Dalamud;
 using Pilz.Dalamud.Icons;
 using Pilz.Dalamud.Tools.NamePlates;
 using Pilz.Dalamud.Tools.Strings;
@@ -112,11 +114,10 @@ public class NameplateTagTargetFeature : TagTargetFeature
 
         if (handler.PlayerCharacter != null && (!handler.PlayerCharacter.IsDead || generalOptions.NameplateDeadPlayerHandling != DeadPlayerHandling.Ignore))
         {
-            var classJob = handler.PlayerCharacter.ClassJob;
-            var classJobGameData = classJob?.GameData;
+            var classJob = handler.PlayerCharacter.ClassJob.ValueNullable;
 
             // Add the job tags
-            if (classJobGameData != null && pluginData.JobTags.TryGetValue(classJobGameData.Abbreviation, out var jobTag))
+            if (classJob.HasValue && pluginData.JobTags.TryGetValue(classJob.Value.Abbreviation.ParseString(), out var jobTag))
             {
                 if (jobTag.TagTargetInNameplates.InheritedValue != null && jobTag.TagPositionInNameplates.InheritedValue != null)
                     checkTag(jobTag);
@@ -152,7 +153,7 @@ public class NameplateTagTargetFeature : TagTargetFeature
                         AddPayloadChanges(tag.TagTargetInNameplates.InheritedValue.Value, tag.TagPositionInNameplates.InheritedValue.Value, payloads, nameplateChanges, false);
                 }
                 if (IsTagVisible(tag, handler.PlayerCharacter) && newStatusIcon == null && classJob != null && (tag.IsJobIconVisibleInNameplates?.InheritedValue ?? false))
-                    newStatusIcon = jobIconSets.GetJobIcon(tag.JobIconSet?.InheritedValue ?? JobIconSetName.Framed, classJob.Id);
+                    newStatusIcon = jobIconSets.GetJobIcon(tag.JobIconSet?.InheritedValue ?? JobIconSetName.Framed, classJob.Value.RowId);
             }
         }
 
@@ -183,7 +184,7 @@ public class NameplateTagTargetFeature : TagTargetFeature
                     applyTextFormatting(customTag);
             }
 
-            if (handler.PlayerCharacter.ClassJob.GameData != null && pluginData.JobTags.TryGetValue(handler.PlayerCharacter.ClassJob.GameData.Abbreviation, out var jobTag))
+            if (handler.PlayerCharacter.ClassJob.ValueNullable is ClassJob classJob && pluginData.JobTags.TryGetValue(classJob.Abbreviation.ParseString(), out var jobTag))
                 applyTextFormatting(jobTag);
 
             void applyTextFormatting(Tag tag)

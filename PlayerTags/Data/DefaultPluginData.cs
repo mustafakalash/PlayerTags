@@ -1,6 +1,7 @@
 ﻿using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
+using Pilz.Dalamud;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -475,15 +476,16 @@ public class DefaultPluginData
         {
             foreach ((var role, var roleTagChanges) in RoleTags)
             {
-                foreach (var classJob in classJobs.Where(classJob => RoleHelper.RolesByRoleId[classJob.Role] == role && !string.IsNullOrEmpty(classJob.Abbreviation.RawString)))
+                foreach (var classJob in classJobs.Where(classJob => RoleHelper.RolesByRoleId[classJob.Role] == role && !string.IsNullOrEmpty(classJob.Abbreviation.ParseString())))
                 {
-                    if (!JobTags.ContainsKey(classJob.Abbreviation.RawString))
+                    var abbrv = classJob.Abbreviation.ParseString();
+                    if (!JobTags.ContainsKey(abbrv))
                     {
-                        JobTags[classJob.Abbreviation.RawString] = new Tag()
+                        JobTags[abbrv] = new Tag()
                         {
                             IsSelected = false,
                             IsExpanded = false,
-                            Text = classJob.Abbreviation.RawString,
+                            Text = abbrv,
                         };
                     }
                 }

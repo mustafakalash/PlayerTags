@@ -3,6 +3,8 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
+using Lumina.Excel.Sheets;
+using Pilz.Dalamud;
 using Pilz.Dalamud.Tools.Strings;
 using PlayerTags.Configuration;
 using PlayerTags.Data;
@@ -273,7 +275,7 @@ public class ChatTagTargetFeature : TagTargetFeature
                         // Fix displaying of abbreviated  own player name as the game does this after the chat message handler
                         playerTextPayload.Text = BuildPlayername(playerTextPayload.Text);
 
-                        var playerPayload = new PlayerPayload(playerName, PluginServices.ClientState.LocalPlayer.HomeWorld.Id);
+                        var playerPayload = new PlayerPayload(playerName, PluginServices.ClientState.LocalPlayer.HomeWorld.RowId);
                         int playerPayloadIndex = seString.Payloads.IndexOf(playerTextPayload);
                         var hasNumberPrefix = isSender && (chatType == XivChatType.Party || chatType == XivChatType.Alliance);
 
@@ -326,7 +328,7 @@ public class ChatTagTargetFeature : TagTargetFeature
             if (stringMatch.GameObject is IPlayerCharacter playerCharacter)
             {
                 // Add the job tag
-                if (playerCharacter.ClassJob.GameData != null && pluginData.JobTags.TryGetValue(playerCharacter.ClassJob.GameData.Abbreviation, out var jobTag))
+                if (playerCharacter.ClassJob.ValueNullable is ClassJob classJob && pluginData.JobTags.TryGetValue(classJob.Abbreviation.ParseString(), out var jobTag))
                 {
                     if (isTagEnabled(jobTag))
                     {
@@ -390,7 +392,7 @@ public class ChatTagTargetFeature : TagTargetFeature
 
                 if (stringMatch.GameObject is IPlayerCharacter playerCharacter1)
                 {
-                    if (playerCharacter1.ClassJob.GameData != null && pluginData.JobTags.TryGetValue(playerCharacter1.ClassJob.GameData.Abbreviation, out var jobTag) && isTagEnabled(jobTag))
+                    if (playerCharacter1.ClassJob.ValueNullable is ClassJob classJob && pluginData.JobTags.TryGetValue(classJob.Abbreviation.ParseString(), out var jobTag) && isTagEnabled(jobTag))
                         applyTextFormatting(jobTag);
                 }
 

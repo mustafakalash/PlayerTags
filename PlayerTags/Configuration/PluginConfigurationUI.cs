@@ -4,7 +4,7 @@ using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility;
 using ImGuiNET;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using Pilz.Dalamud.ActivityContexts;
 using Pilz.Dalamud.Icons;
 using Pilz.Dalamud.Tools.NamePlates;

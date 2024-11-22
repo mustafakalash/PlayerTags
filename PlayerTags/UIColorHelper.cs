@@ -1,5 +1,5 @@
 ﻿using ImGuiNET;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,14 +11,9 @@ public static class UIColorHelper
 {
     private class UIColorComparer : IEqualityComparer<UIColor>
     {
-        public bool Equals(UIColor? left, UIColor? right)
+        public bool Equals(UIColor left, UIColor right)
         {
-            if (left != null && right != null)
-            {
-                return left.UIForeground == right.UIForeground;
-            }
-
-            return false;
+            return left.UIForeground == right.UIForeground;
         }
 
         public int GetHashCode(UIColor obj)
